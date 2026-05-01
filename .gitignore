@@ -216,3 +216,9 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+test_logs.csv
+
+services/.DS_Store
+*.xlsx
+产品测试报告.xlsx
+.DS_Store
