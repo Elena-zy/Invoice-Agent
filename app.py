@@ -1,5 +1,3 @@
-# app.py
-
 import imaplib
 import time
 import streamlit as st
