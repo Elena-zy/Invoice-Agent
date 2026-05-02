@@ -320,47 +320,142 @@ def show_test_dashboard():
             )
 
 
-st.title("📊 AI发票报销助手 V5")
-st.write("支持上传 PDF 发票，也支持通过 QQ邮箱 / 163邮箱 / 126邮箱授权码自动读取发票附件。")
+# =========================
+# 官网 + 产品体验一体化页面
+# =========================
 
-with st.sidebar:
-    st.header("🧪 测试设置")
+st.markdown("""
+<style>
+.main-title {
+    font-size: 48px;
+    font-weight: 800;
+    color: #172033;
+    margin-bottom: 12px;
+}
+.sub-title {
+    font-size: 20px;
+    color: #64748b;
+    line-height: 1.8;
+    margin-bottom: 30px;
+}
+.hero-card {
+    padding: 28px;
+    border-radius: 24px;
+    background: #ffffff;
+    box-shadow: 0 20px 60px rgba(30, 58, 138, 0.12);
+    border: 1px solid #eef2ff;
+}
+.feature-card {
+    padding: 24px;
+    border-radius: 20px;
+    background: #ffffff;
+    border: 1px solid #eef2ff;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+    height: 100%;
+}
+.feature-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1e3a8a;
+}
+.feature-desc {
+    color: #64748b;
+    line-height: 1.7;
+}
+.section-title {
+    font-size: 32px;
+    font-weight: 800;
+    margin-top: 50px;
+    margin-bottom: 20px;
+}
+</style>
+""", unsafe_allow_html=True)
 
-    enable_test_log = st.checkbox("开启测试记录", value=True)
 
-    test_round = st.text_input(
-        "测试轮次",
-        value="第1轮-功能测试",
-        help="例如：第1轮-功能测试 / 第2轮-准确率测试 / 第3轮-稳定性测试"
+# =========================
+# 顶部官网介绍区
+# =========================
+
+col_left, col_right = st.columns([1.2, 1])
+
+with col_left:
+    st.markdown('<div class="main-title">AI发票报销助手</div>', unsafe_allow_html=True)
+    st.markdown(
+        '<div class="sub-title">自动识别 PDF 发票、读取邮箱发票，并生成标准 Excel 报销表。适合个人报销、小团队财务整理和 AI 产品作品集展示。</div>',
+        unsafe_allow_html=True
     )
 
-    st.divider()
-    st.subheader("💰 Token预算控制")
+    st.link_button("查看 GitHub", "https://github.com/Elena-zy/Invoice-Agent")
 
-    logs_df = load_logs()
-
-    if not logs_df.empty:
-        used_tokens = logs_df["total_tokens"].sum()
-        remaining_tokens = TOKEN_LIMIT - used_tokens
-        usage_rate = used_tokens / TOKEN_LIMIT
-
-        st.metric("累计 Token", int(used_tokens))
-        st.metric("剩余 Token 预算", int(remaining_tokens))
-        st.progress(min(usage_rate, 1.0))
-
-        if used_tokens >= TOKEN_LIMIT:
-            st.error("Token 已超过 10 万预算，建议暂停测试。")
-        elif used_tokens >= TOKEN_LIMIT * 0.8:
-            st.warning("Token 已使用超过 80%，请控制测试规模。")
-    else:
-        st.info("暂无 Token 消耗记录")
+with col_right:
+    st.markdown("""
+    <div class="hero-card">
+        <h3>智能识别结果示例</h3>
+        <p><b>发票号码：</b>自动提取</p>
+        <p><b>发票金额：</b>¥603.21</p>
+        <p><b>销售方：</b>AI识别</p>
+        <p style="color:#047857;font-weight:700;">识别完成，可导出 Excel</p>
+    </div>
+    """, unsafe_allow_html=True)
 
 
-tab1, tab2, tab3 = st.tabs(["📄 上传PDF识别", "📩 邮箱自动读取", "📊 测试统计"])
+# =========================
+# 功能亮点区
+# =========================
+
+st.markdown('<div class="section-title">核心功能</div>', unsafe_allow_html=True)
+
+f1, f2, f3, f4 = st.columns(4)
+
+with f1:
+    st.markdown("""
+    <div class="feature-card">
+        <div class="feature-title">📄 PDF发票识别</div>
+        <p class="feature-desc">上传 PDF 发票，自动提取发票号码、金额、日期、销售方等字段。</p>
+    </div>
+    """, unsafe_allow_html=True)
+
+with f2:
+    st.markdown("""
+    <div class="feature-card">
+        <div class="feature-title">📬 邮箱自动读取</div>
+        <p class="feature-desc">支持 QQ / 163 / 126 邮箱，通过授权码读取发票附件。</p>
+    </div>
+    """, unsafe_allow_html=True)
+
+with f3:
+    st.markdown("""
+    <div class="feature-card">
+        <div class="feature-title">🤖 AI结构化提取</div>
+        <p class="feature-desc">调用大模型，将非结构化发票内容转换为标准字段。</p>
+    </div>
+    """, unsafe_allow_html=True)
+
+with f4:
+    st.markdown("""
+    <div class="feature-card">
+        <div class="feature-title">📊 Excel报销表</div>
+        <p class="feature-desc">识别完成后自动生成 Excel，方便下载、提交和归档。</p>
+    </div>
+    """, unsafe_allow_html=True)
 
 
-with tab1:
-    st.subheader("📄 上传PDF发票识别")
+# =========================
+# 用户体验区
+# =========================
+
+st.markdown('<div class="section-title">开始体验</div>', unsafe_allow_html=True)
+
+user_tab1, user_tab2 = st.tabs(["📄 上传 PDF 发票", "📩 邮箱读取发票"])
+
+
+# 普通用户默认不显示测试设置
+enable_test_log = False
+test_round = "线上体验"
+
+
+with user_tab1:
+    st.subheader("📄 上传 PDF 发票识别")
 
     uploaded_files = st.file_uploader(
         "上传一个或多个 PDF 发票",
@@ -368,9 +463,9 @@ with tab1:
         accept_multiple_files=True
     )
 
-    debug_mode_upload = st.checkbox("显示上传PDF调试信息", value=False)
+    debug_mode_upload = False
 
-    if st.button("🚀 开始识别上传的PDF"):
+    if st.button("🚀 开始识别上传的 PDF", use_container_width=True):
         if not uploaded_files:
             st.warning("请先上传 PDF 发票")
             st.stop()
@@ -402,8 +497,8 @@ with tab1:
         show_results(all_results, total_usage)
 
 
-with tab2:
-    st.subheader("📩 邮箱自动读取PDF发票")
+with user_tab2:
+    st.subheader("📩 邮箱自动读取 PDF 发票")
 
     st.info("请填写邮箱授权码，不是邮箱登录密码。需要先在邮箱设置中开启 IMAP/SMTP 服务。")
 
@@ -430,15 +525,15 @@ with tab2:
     )
 
     max_files = st.number_input(
-        "最多识别PDF附件数量",
+        "最多识别 PDF 附件数量",
         min_value=1,
         max_value=100,
         value=20
     )
 
-    debug_mode_email = st.checkbox("显示邮箱PDF调试信息", value=False)
+    debug_mode_email = False
 
-    if st.button("📩 连接邮箱并读取发票"):
+    if st.button("📩 连接邮箱并读取发票", use_container_width=True):
         if not email_account or not auth_code:
             st.warning("请填写邮箱账号和授权码")
             st.stop()
@@ -519,5 +614,30 @@ with tab2:
                 close_email(mail)
 
 
-with tab3:
-    show_test_dashboard()
+# =========================
+# 管理员入口：测试数据不展示给普通用户
+# =========================
+
+st.markdown("---")
+
+with st.expander("管理员入口"):
+    admin_password = st.text_input("请输入管理员密码", type="password")
+
+    if admin_password == "admin123":
+        st.success("管理员验证成功")
+
+        st.header("🧪 测试设置")
+
+        enable_test_log_admin = st.checkbox("开启测试记录", value=True)
+
+        test_round_admin = st.text_input(
+            "测试轮次",
+            value="第1轮-功能测试",
+            help="例如：第1轮-功能测试 / 第2轮-准确率测试 / 第3轮-稳定性测试"
+        )
+
+        st.header("📊 测试统计")
+        show_test_dashboard()
+
+    elif admin_password:
+        st.error("管理员密码错误")
