@@ -321,62 +321,124 @@ def show_test_dashboard():
 
 
 # =========================
-# 官网 + 产品体验一体化页面
+# 官网 + 功能卡片一体化页面
 # =========================
 
 st.markdown("""
 <style>
-.main-title {
-    font-size: 48px;
-    font-weight: 800;
-    color: #172033;
-    margin-bottom: 12px;
+.block-container {
+    padding-top: 2rem;
+    padding-bottom: 4rem;
+    max-width: 1180px;
 }
+
+.main-title {
+    font-size: 54px;
+    font-weight: 900;
+    color: #172033;
+    margin-bottom: 16px;
+    letter-spacing: -1px;
+}
+
 .sub-title {
     font-size: 20px;
     color: #64748b;
     line-height: 1.8;
-    margin-bottom: 30px;
+    margin-bottom: 36px;
+    max-width: 680px;
 }
+
 .hero-card {
-    padding: 28px;
-    border-radius: 24px;
+    padding: 34px;
+    border-radius: 28px;
     background: #ffffff;
-    box-shadow: 0 20px 60px rgba(30, 58, 138, 0.12);
+    box-shadow: 0 28px 80px rgba(30, 58, 138, 0.14);
     border: 1px solid #eef2ff;
 }
-.feature-card {
-    padding: 24px;
-    border-radius: 20px;
-    background: #ffffff;
-    border: 1px solid #eef2ff;
-    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
-    height: 100%;
+
+.hero-card h3 {
+    font-size: 26px;
+    margin-bottom: 24px;
+    color: #172033;
 }
-.feature-title {
-    font-size: 20px;
-    font-weight: 700;
-    color: #1e3a8a;
-}
-.feature-desc {
+
+.hero-row {
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid #eef2f7;
+    padding: 14px 0;
     color: #64748b;
-    line-height: 1.7;
+    font-size: 16px;
 }
-.section-title {
-    font-size: 32px;
+
+.hero-row strong {
+    color: #172033;
+}
+
+.hero-status {
+    margin-top: 24px;
+    padding: 16px;
+    border-radius: 16px;
+    background: #ecfdf5;
+    color: #047857;
     font-weight: 800;
-    margin-top: 50px;
-    margin-bottom: 20px;
+    text-align: center;
+}
+
+.feature-card {
+    padding: 34px;
+    border-radius: 28px;
+    background: #ffffff;
+    border: 1px solid #eef2ff;
+    box-shadow: 0 22px 60px rgba(15, 23, 42, 0.07);
+    min-height: 260px;
+    transition: 0.25s ease;
+}
+
+.feature-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 30px 80px rgba(15, 23, 42, 0.12);
+}
+
+.feature-icon {
+    font-size: 34px;
+    margin-bottom: 24px;
+}
+
+.feature-title {
+    font-size: 23px;
+    font-weight: 850;
+    color: #172033;
+    margin-bottom: 16px;
+}
+
+.feature-desc {
+    font-size: 16px;
+    color: #64748b;
+    line-height: 1.9;
+}
+
+.function-box {
+    margin-top: 34px;
+    padding: 34px;
+    border-radius: 28px;
+    background: #ffffff;
+    border: 1px solid #eef2ff;
+    box-shadow: 0 22px 60px rgba(15, 23, 42, 0.06);
+}
+
+.admin-box {
+    margin-top: 48px;
 }
 </style>
 """, unsafe_allow_html=True)
 
 
 # =========================
-# 顶部官网介绍区
+# 顶部介绍区
 # =========================
 
-col_left, col_right = st.columns([1.2, 1])
+col_left, col_right = st.columns([1.15, 0.85], gap="large")
 
 with col_left:
     st.markdown('<div class="main-title">AI发票报销助手</div>', unsafe_allow_html=True)
@@ -384,194 +446,69 @@ with col_left:
         '<div class="sub-title">自动识别 PDF 发票、读取邮箱发票，并生成标准 Excel 报销表。适合个人报销、小团队财务整理和 AI 产品作品集展示。</div>',
         unsafe_allow_html=True
     )
-
     st.link_button("查看 GitHub", "https://github.com/Elena-zy/Invoice-Agent")
 
 with col_right:
     st.markdown("""
     <div class="hero-card">
-        <h3>智能识别结果示例</h3>
-        <p><b>发票号码：</b>自动提取</p>
-        <p><b>发票金额：</b>¥603.21</p>
-        <p><b>销售方：</b>AI识别</p>
-        <p style="color:#047857;font-weight:700;">识别完成，可导出 Excel</p>
+        <h3>智能识别结果</h3>
+        <div class="hero-row"><span>发票号码</span><strong>自动提取</strong></div>
+        <div class="hero-row"><span>发票金额</span><strong>¥603.21</strong></div>
+        <div class="hero-row"><span>销售方</span><strong>AI识别</strong></div>
+        <div class="hero-status">识别完成，可导出 Excel</div>
     </div>
     """, unsafe_allow_html=True)
 
 
 # =========================
-# 功能亮点区
+# 四个功能卡片：点击后直接操作
 # =========================
 
-st.markdown('<div class="section-title">核心功能</div>', unsafe_allow_html=True)
+st.markdown("<br><br>", unsafe_allow_html=True)
 
-f1, f2, f3, f4 = st.columns(4)
+feature_tab1, feature_tab2, feature_tab3, feature_tab4 = st.tabs([
+    "📄 PDF 发票识别",
+    "📬 邮箱自动读取",
+    "🤖 AI 结构化提取",
+    "📊 Excel 报销表"
+])
 
-with f1:
-    st.markdown("""
-    <div class="feature-card">
-        <div class="feature-title">📄 PDF发票识别</div>
-        <p class="feature-desc">上传 PDF 发票，自动提取发票号码、金额、日期、销售方等字段。</p>
-    </div>
-    """, unsafe_allow_html=True)
-
-with f2:
-    st.markdown("""
-    <div class="feature-card">
-        <div class="feature-title">📬 邮箱自动读取</div>
-        <p class="feature-desc">支持 QQ / 163 / 126 邮箱，通过授权码读取发票附件。</p>
-    </div>
-    """, unsafe_allow_html=True)
-
-with f3:
-    st.markdown("""
-    <div class="feature-card">
-        <div class="feature-title">🤖 AI结构化提取</div>
-        <p class="feature-desc">调用大模型，将非结构化发票内容转换为标准字段。</p>
-    </div>
-    """, unsafe_allow_html=True)
-
-with f4:
-    st.markdown("""
-    <div class="feature-card">
-        <div class="feature-title">📊 Excel报销表</div>
-        <p class="feature-desc">识别完成后自动生成 Excel，方便下载、提交和归档。</p>
-    </div>
-    """, unsafe_allow_html=True)
-
-
-# =========================
-# 用户体验区
-# =========================
-
-st.markdown('<div class="section-title">开始体验</div>', unsafe_allow_html=True)
-
-user_tab1, user_tab2 = st.tabs(["📄 上传 PDF 发票", "📩 邮箱读取发票"])
-
-
-# 普通用户默认不显示测试设置
 enable_test_log = False
 test_round = "线上体验"
 
 
-with user_tab1:
-    st.subheader("📄 上传 PDF 发票识别")
+# =========================
+# 功能1：PDF上传识别
+# =========================
 
-    uploaded_files = st.file_uploader(
-        "上传一个或多个 PDF 发票",
-        type=["pdf"],
-        accept_multiple_files=True
-    )
+with feature_tab1:
+    c1, c2 = st.columns([0.9, 1.1], gap="large")
 
-    debug_mode_upload = False
+    with c1:
+        st.markdown("""
+        <div class="feature-card">
+            <div class="feature-icon">📄</div>
+            <div class="feature-title">PDF 发票识别</div>
+            <div class="feature-desc">
+                上传一个或多个 PDF 发票，系统会自动读取发票内容，并提取发票号码、金额、日期、销售方等字段。
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
 
-    if st.button("🚀 开始识别上传的 PDF", use_container_width=True):
-        if not uploaded_files:
-            st.warning("请先上传 PDF 发票")
-            st.stop()
+    with c2:
+        st.markdown('<div class="function-box">', unsafe_allow_html=True)
 
-        all_results = []
-        total_usage = {
-            "prompt_tokens": 0,
-            "completion_tokens": 0,
-            "total_tokens": 0
-        }
+        st.subheader("上传 PDF 发票")
 
-        for uploaded_file in uploaded_files:
-            with st.spinner(f"正在识别：{uploaded_file.name}"):
-                raw_text = extract_pdf_text_from_file(uploaded_file)
+        uploaded_files = st.file_uploader(
+            "请选择一个或多个 PDF 发票",
+            type=["pdf"],
+            accept_multiple_files=True
+        )
 
-                results, usage, duration = recognize_text_to_results(
-                    raw_text,
-                    source="手动上传",
-                    file_name=uploaded_file.name,
-                    debug=debug_mode_upload
-                )
-
-                all_results.extend(results)
-                total_usage = add_usage(total_usage, usage)
-
-                if enable_test_log:
-                    log_results(test_round, results, usage, duration)
-
-        show_results(all_results, total_usage)
-
-
-with user_tab2:
-    st.subheader("📩 邮箱自动读取 PDF 发票")
-
-    st.info("请填写邮箱授权码，不是邮箱登录密码。需要先在邮箱设置中开启 IMAP/SMTP 服务。")
-
-    provider = st.selectbox(
-        "邮箱类型",
-        ["QQ邮箱", "163邮箱", "126邮箱"]
-    )
-
-    email_account = st.text_input(
-        "邮箱账号",
-        placeholder="例如：123456@qq.com / xxx@163.com / xxx@126.com"
-    )
-
-    auth_code = st.text_input(
-        "邮箱授权码",
-        type="password",
-        placeholder="请输入邮箱授权码，不是登录密码"
-    )
-
-    days = st.selectbox(
-        "搜索最近多少天的发票",
-        [7, 30, 90],
-        index=1
-    )
-
-    max_files = st.number_input(
-        "最多识别 PDF 附件数量",
-        min_value=1,
-        max_value=100,
-        value=20
-    )
-
-    debug_mode_email = False
-
-    if st.button("📩 连接邮箱并读取发票", use_container_width=True):
-        if not email_account or not auth_code:
-            st.warning("请填写邮箱账号和授权码")
-            st.stop()
-
-        mail = None
-
-        try:
-            with st.spinner("正在连接邮箱..."):
-                mail = connect_email(provider, email_account, auth_code)
-
-            st.success("邮箱连接成功")
-
-            with st.spinner("正在搜索发票邮件..."):
-                message_ids = search_invoice_emails(
-                    mail,
-                    days=days,
-                    max_results=max_files
-                )
-
-            st.write(f"找到 {len(message_ids)} 封可能包含发票的邮件")
-
-            if not message_ids:
-                st.warning("没有找到发票相关邮件")
-                st.stop()
-
-            with st.spinner("正在下载 PDF 附件..."):
-                attachments = download_pdf_attachments(
-                    mail,
-                    message_ids,
-                    save_dir="downloads"
-                )
-
-            attachments = attachments[:max_files]
-
-            st.write(f"下载到 {len(attachments)} 个 PDF 附件")
-
-            if not attachments:
-                st.warning("没有找到 PDF 附件")
+        if st.button("🚀 开始识别 PDF 发票", use_container_width=True):
+            if not uploaded_files:
+                st.warning("请先上传 PDF 发票")
                 st.stop()
 
             all_results = []
@@ -581,18 +518,15 @@ with user_tab2:
                 "total_tokens": 0
             }
 
-            for attachment in attachments:
-                file_path = attachment["file_path"]
-                file_name = attachment["file_name"]
-
-                with st.spinner(f"正在识别：{file_name}"):
-                    raw_text = extract_pdf_text_from_path(file_path)
+            for uploaded_file in uploaded_files:
+                with st.spinner(f"正在识别：{uploaded_file.name}"):
+                    raw_text = extract_pdf_text_from_file(uploaded_file)
 
                     results, usage, duration = recognize_text_to_results(
                         raw_text,
-                        source=f"邮箱：{provider}",
-                        file_name=file_name,
-                        debug=debug_mode_email
+                        source="手动上传",
+                        file_name=uploaded_file.name,
+                        debug=False
                     )
 
                     all_results.extend(results)
@@ -603,22 +537,223 @@ with user_tab2:
 
             show_results(all_results, total_usage)
 
-        except imaplib.IMAP4.error:
-            st.error("邮箱登录失败。请检查邮箱账号、授权码，以及是否已开启 IMAP 服务。")
+        st.markdown('</div>', unsafe_allow_html=True)
 
-        except Exception as e:
-            st.error(f"邮箱读取失败：{e}")
 
-        finally:
-            if mail:
-                close_email(mail)
+# =========================
+# 功能2：邮箱自动读取
+# =========================
+
+with feature_tab2:
+    c1, c2 = st.columns([0.9, 1.1], gap="large")
+
+    with c1:
+        st.markdown("""
+        <div class="feature-card">
+            <div class="feature-icon">📬</div>
+            <div class="feature-title">邮箱自动读取</div>
+            <div class="feature-desc">
+                支持 QQ / 163 / 126 邮箱，通过 IMAP 授权码自动搜索发票邮件，并下载 PDF 附件进入识别流程。
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with c2:
+        st.markdown('<div class="function-box">', unsafe_allow_html=True)
+
+        st.subheader("邮箱自动读取 PDF 发票")
+
+        st.info("请填写邮箱授权码，不是邮箱登录密码。需要先在邮箱设置中开启 IMAP/SMTP 服务。")
+
+        provider = st.selectbox(
+            "邮箱类型",
+            ["QQ邮箱", "163邮箱", "126邮箱"]
+        )
+
+        email_account = st.text_input(
+            "邮箱账号",
+            placeholder="例如：123456@qq.com / xxx@163.com / xxx@126.com"
+        )
+
+        auth_code = st.text_input(
+            "邮箱授权码",
+            type="password",
+            placeholder="请输入邮箱授权码，不是登录密码"
+        )
+
+        days = st.selectbox(
+            "搜索最近多少天的发票",
+            [7, 30, 90],
+            index=1
+        )
+
+        max_files = st.number_input(
+            "最多识别 PDF 附件数量",
+            min_value=1,
+            max_value=100,
+            value=20
+        )
+
+        if st.button("📩 连接邮箱并读取发票", use_container_width=True):
+            if not email_account or not auth_code:
+                st.warning("请填写邮箱账号和授权码")
+                st.stop()
+
+            mail = None
+
+            try:
+                with st.spinner("正在连接邮箱..."):
+                    mail = connect_email(provider, email_account, auth_code)
+
+                st.success("邮箱连接成功")
+
+                with st.spinner("正在搜索发票邮件..."):
+                    message_ids = search_invoice_emails(
+                        mail,
+                        days=days,
+                        max_results=max_files
+                    )
+
+                st.write(f"找到 {len(message_ids)} 封可能包含发票的邮件")
+
+                if not message_ids:
+                    st.warning("没有找到发票相关邮件")
+                    st.stop()
+
+                with st.spinner("正在下载 PDF 附件..."):
+                    attachments = download_pdf_attachments(
+                        mail,
+                        message_ids,
+                        save_dir="downloads"
+                    )
+
+                attachments = attachments[:max_files]
+
+                st.write(f"下载到 {len(attachments)} 个 PDF 附件")
+
+                if not attachments:
+                    st.warning("没有找到 PDF 附件")
+                    st.stop()
+
+                all_results = []
+                total_usage = {
+                    "prompt_tokens": 0,
+                    "completion_tokens": 0,
+                    "total_tokens": 0
+                }
+
+                for attachment in attachments:
+                    file_path = attachment["file_path"]
+                    file_name = attachment["file_name"]
+
+                    with st.spinner(f"正在识别：{file_name}"):
+                        raw_text = extract_pdf_text_from_path(file_path)
+
+                        results, usage, duration = recognize_text_to_results(
+                            raw_text,
+                            source=f"邮箱：{provider}",
+                            file_name=file_name,
+                            debug=False
+                        )
+
+                        all_results.extend(results)
+                        total_usage = add_usage(total_usage, usage)
+
+                        if enable_test_log:
+                            log_results(test_round, results, usage, duration)
+
+                show_results(all_results, total_usage)
+
+            except imaplib.IMAP4.error:
+                st.error("邮箱登录失败。请检查邮箱账号、授权码，以及是否已开启 IMAP 服务。")
+
+            except Exception as e:
+                st.error(f"邮箱读取失败：{e}")
+
+            finally:
+                if mail:
+                    close_email(mail)
+
+        st.markdown('</div>', unsafe_allow_html=True)
+
+
+# =========================
+# 功能3：AI结构化提取说明 + 引导上传
+# =========================
+
+with feature_tab3:
+    c1, c2 = st.columns([0.9, 1.1], gap="large")
+
+    with c1:
+        st.markdown("""
+        <div class="feature-card">
+            <div class="feature-icon">🤖</div>
+            <div class="feature-title">AI 结构化提取</div>
+            <div class="feature-desc">
+                系统会调用通义千问 / Dify / Ollama，将 PDF 中的非结构化文本转换为标准发票字段。
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with c2:
+        st.markdown('<div class="function-box">', unsafe_allow_html=True)
+        st.subheader("AI 识别字段")
+
+        st.write("当前支持提取以下字段：")
+
+        st.dataframe(
+            [
+                {"字段": "发票号码", "说明": "自动识别发票唯一编号"},
+                {"字段": "金额", "说明": "自动提取发票金额"},
+                {"字段": "日期", "说明": "自动提取开票日期"},
+                {"字段": "销售方", "说明": "自动识别销售方名称"},
+                {"字段": "类型", "说明": "识别发票 / 行程单 / 其他类型"},
+                {"字段": "状态", "说明": "判断正常 / 异常 / 待确认"},
+            ],
+            use_container_width=True
+        )
+
+        st.info("如需开始识别，请切换到「PDF 发票识别」或「邮箱自动读取」功能。")
+        st.markdown('</div>', unsafe_allow_html=True)
+
+
+# =========================
+# 功能4：Excel报销表说明 + 下载引导
+# =========================
+
+with feature_tab4:
+    c1, c2 = st.columns([0.9, 1.1], gap="large")
+
+    with c1:
+        st.markdown("""
+        <div class="feature-card">
+            <div class="feature-icon">📊</div>
+            <div class="feature-title">Excel 报销表</div>
+            <div class="feature-desc">
+                识别完成后，系统会自动生成标准 Excel 报销表，方便下载、提交和归档。
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with c2:
+        st.markdown('<div class="function-box">', unsafe_allow_html=True)
+        st.subheader("Excel 报销表生成")
+
+        st.write("识别完成后，页面下方会自动出现：")
+
+        st.success("📥 下载 Excel 发票表")
+
+        st.write("Excel 中会包含发票号码、金额、日期、销售方、类型、状态、异常原因等字段。")
+
+        st.info("如需生成 Excel，请先在「PDF 发票识别」或「邮箱自动读取」中完成识别。")
+        st.markdown('</div>', unsafe_allow_html=True)
 
 
 # =========================
 # 管理员入口：测试数据不展示给普通用户
 # =========================
 
-st.markdown("---")
+st.markdown('<div class="admin-box"></div>', unsafe_allow_html=True)
 
 with st.expander("管理员入口"):
     admin_password = st.text_input("请输入管理员密码", type="password")
