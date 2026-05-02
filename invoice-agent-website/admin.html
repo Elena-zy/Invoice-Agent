@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8" />
+  <title>管理员后台 | Invoice Agent</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <header class="navbar">
+    <div class="logo">Invoice Agent Admin</div>
+    <nav>
+      <a href="index.html">返回首页</a>
+    </nav>
+  </header>
+
+  <section class="section admin-page">
+    <div class="tag">Admin Only</div>
+    <h1>测试数据看板</h1>
+    <p class="section-desc">该页面用于内部测试复盘，不展示在普通用户首页。</p>
+
+    <div class="admin-grid">
+      <div class="admin-card">
+        <span>测试轮次</span>
+        <strong>6轮</strong>
+      </div>
+
+      <div class="admin-card">
+        <span>识别成功率</span>
+        <strong>95%+</strong>
+      </div>
+
+      <div class="admin-card">
+        <span>Token 消耗</span>
+        <strong>10万以内</strong>
+      </div>
+
+      <div class="admin-card">
+        <span>当前状态</span>
+        <strong>可小范围上线测试</strong>
+      </div>
+    </div>
+
+    <div class="issue-box">
+      <h3>异常分析</h3>
+      <ul>
+        <li>个别 PDF 文本结构异常，导致发票号码偶发未识别。</li>
+        <li>行程单被误判为发票，后续需要增加文件类型判断。</li>
+      </ul>
+    </div>
+  </section>
+</body>
+</html>

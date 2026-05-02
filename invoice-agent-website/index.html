@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8" />
+  <title>AI发票报销助手 | Invoice Agent</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <header class="navbar">
+    <div class="logo">Invoice Agent</div>
+    <nav>
+      <a href="#features">功能</a>
+      <a href="#workflow">流程</a>
+      <a href="#value">亮点</a>
+      <a href="#">GitHub</a>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <div class="hero-text">
+      <div class="tag">AI Invoice Automation</div>
+      <h1>AI发票报销助手</h1>
+      <p>
+        自动识别 PDF 发票、读取邮箱发票，并生成标准 Excel 报销表。
+        适合个人报销、小团队财务整理和 AI 产品作品集展示。
+      </p>
+
+      <div class="hero-buttons">
+  <a href="https://invoice-agent.streamlit.app" target="_blank" class="btn primary">
+    体验在线 Demo
+  </a>
+
+  <a href="https://github.com/zhouyue/invoice-agent" target="_blank" class="btn secondary">
+    查看 GitHub
+  </a>
+</div>
+    </div>
+
+    <div class="hero-card">
+      <h3>智能识别结果</h3>
+      <div class="result-row">
+        <span>发票号码</span>
+        <strong>自动提取</strong>
+      </div>
+      <div class="result-row">
+        <span>发票金额</span>
+        <strong>¥603.21</strong>
+      </div>
+      <div class="result-row">
+        <span>销售方</span>
+        <strong>AI识别</strong>
+      </div>
+      <div class="result-status">识别完成，可导出 Excel</div>
+    </div>
+  </section>
+
+  <section class="section" id="features">
+    <h2>核心功能</h2>
+    <p class="section-desc">覆盖从发票获取、AI识别到报销表生成的完整流程</p>
+
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="icon">📄</div>
+        <h3>PDF 发票识别</h3>
+        <p>支持上传 PDF 发票，自动解析发票内容并提取关键字段。</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="icon">📬</div>
+        <h3>邮箱自动读取</h3>
+        <p>支持 QQ / 163 / 126 邮箱，通过 IMAP 授权自动获取发票邮件。</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="icon">🤖</div>
+        <h3>AI 结构化提取</h3>
+        <p>调用通义千问 / Dify / Ollama，提取发票号码、金额、日期、销售方等信息。</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="icon">📊</div>
+        <h3>Excel 报销表</h3>
+        <p>识别完成后自动生成 Excel 报销表，方便下载、提交和归档。</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section workflow" id="workflow">
+    <h2>使用流程</h2>
+
+    <div class="steps">
+      <div class="step">
+        <span>01</span>
+        <h3>上传或读取发票</h3>
+        <p>用户可以上传 PDF，也可以从邮箱自动读取发票附件。</p>
+      </div>
+
+      <div class="step">
+        <span>02</span>
+        <h3>AI 自动识别</h3>
+        <p>系统调用大模型进行字段提取，并转换为结构化数据。</p>
+      </div>
+
+      <div class="step">
+        <span>03</span>
+        <h3>生成报销表</h3>
+        <p>自动整理识别结果，生成可下载的 Excel 报销表。</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section value" id="value">
+    <div>
+      <h2>为什么这是一个完整的 AI 产品项目？</h2>
+      <p>
+        这个项目不仅完成了功能开发，还包含测试验证、异常分析、Token 成本控制和结果报告，
+        更接近真实 AI 产品从 0 到 1 的开发过程。
+      </p>
+    </div>
+  </section>
+
+  <footer>
+    <p>© 2026 Invoice Agent. Built by 周玥.</p>
+  </footer>
+</body>
+</html>
