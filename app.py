@@ -30,10 +30,21 @@ from utils.test_reporter import (
 )
 
 # =========================
-# 产品级官网 + 功能体验页面
+# 产品级官网 + 功能体验页面（已修复 HTML 代码框问题）
 # =========================
 
-st.markdown("""
+import textwrap
+
+st.set_page_config(
+    page_title="AI发票报销助手",
+    layout="wide"
+)
+
+def html(code: str):
+    """安全渲染 HTML，避免因为缩进被 Streamlit 当成代码块显示。"""
+    st.markdown(textwrap.dedent(code).strip(), unsafe_allow_html=True)
+
+html("""
 <style>
 .stApp {
     background: #f7f2ec;
@@ -49,7 +60,6 @@ header[data-testid="stHeader"] {
     background: transparent;
 }
 
-/* 顶部导航 */
 .topbar {
     display: flex;
     justify-content: space-between;
@@ -82,42 +92,38 @@ header[data-testid="stHeader"] {
     color: #2b3b4e;
 }
 
-/* 首页 */
-.hero-section {
+.hero-box {
     min-height: 620px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+    text-align: center;
+    padding-top: 110px;
     position: relative;
     overflow: hidden;
-    text-align: center;
 }
 
-.badge {
-    width: fit-content;
-    margin: 0 auto;
-    padding: 9px 22px;
+.hero-badge {
+    display: inline-block;
+    padding: 10px 22px;
     border-radius: 999px;
     background: #e8eef3;
     color: #5b91bd;
-    font-weight: 750;
+    font-weight: 700;
     border: 1px solid #cfdbe6;
     position: relative;
     z-index: 2;
 }
 
-.main-title {
+.hero-title {
     font-size: 72px;
-    font-weight: 950;
+    font-weight: 900;
     color: #2b3b4e;
-    margin-top: 34px;
-    margin-bottom: 22px;
+    margin-top: 36px;
+    margin-bottom: 24px;
     letter-spacing: -2px;
     position: relative;
     z-index: 2;
 }
 
-.sub-title {
+.hero-subtitle {
     font-size: 26px;
     color: #6f879f;
     line-height: 1.8;
@@ -125,46 +131,45 @@ header[data-testid="stHeader"] {
     z-index: 2;
 }
 
-.footer-points {
+.hero-points {
+    margin-top: 40px;
     color: #6f879f;
-    margin-top: 38px;
     font-size: 17px;
     position: relative;
     z-index: 2;
 }
 
-/* 装饰圆 */
-.circle-blue {
+.decor-circle-1 {
     position: absolute;
     width: 210px;
     height: 210px;
     border-radius: 50%;
-    background: rgba(120, 166, 195, 0.20);
-    left: 10px;
-    top: 70px;
+    background: rgba(120,166,195,0.20);
+    left: 0;
+    top: 100px;
 }
 
-.circle-purple {
+.decor-circle-2 {
     position: absolute;
     width: 150px;
     height: 150px;
     border-radius: 50%;
-    background: rgba(158, 143, 201, 0.15);
+    background: rgba(158,143,201,0.15);
     left: 48%;
-    top: 250px;
+    top: 270px;
 }
 
-.circle-green {
+.decor-circle-3 {
     position: absolute;
     width: 130px;
     height: 130px;
     border-radius: 50%;
-    background: rgba(134, 173, 142, 0.18);
+    background: rgba(134,173,142,0.18);
     right: 80px;
-    top: 270px;
+    top: 290px;
 }
 
-.circle-pink {
+.decor-circle-4 {
     position: absolute;
     width: 115px;
     height: 115px;
@@ -174,7 +179,6 @@ header[data-testid="stHeader"] {
     bottom: 30px;
 }
 
-/* 功能卡片 */
 .feature-card {
     background: #ffffff;
     border-radius: 26px;
@@ -235,7 +239,6 @@ header[data-testid="stHeader"] {
     margin-bottom: 46px;
 }
 
-/* 页面标题 */
 .page-title {
     text-align: center;
     font-size: 42px;
@@ -251,7 +254,6 @@ header[data-testid="stHeader"] {
     margin-bottom: 46px;
 }
 
-/* 选择方式页 */
 .choose-card {
     background: white;
     border-radius: 28px;
@@ -269,28 +271,6 @@ header[data-testid="stHeader"] {
     border-color: #9b8cc8;
 }
 
-/* 把 Streamlit 按钮做成覆盖卡片的大按钮 */
-.choose-btn button {
-    margin-top: -380px;
-    height: 380px;
-    opacity: 0;
-}
-
-.choose-btn button:hover {
-    opacity: 0.04;
-}
-
-/* 表单页 */
-.form-card {
-    max-width: 760px;
-    margin: 0 auto;
-    background: white;
-    border-radius: 26px;
-    padding: 42px;
-    border: 1px solid #dbe5ee;
-    box-shadow: 0 18px 45px rgba(69, 88, 110, 0.08);
-}
-
 .security-box {
     background: #f7f4fa;
     border: 1px solid #ebe5f3;
@@ -300,7 +280,6 @@ header[data-testid="stHeader"] {
     color: #6f879f;
 }
 
-/* 普通按钮 */
 div.stButton > button {
     border-radius: 18px;
     border: 1px solid #d8e3ec;
@@ -318,114 +297,30 @@ div.stButton > button:hover {
     box-shadow: 0 14px 32px rgba(111, 164, 204, 0.35);
     filter: brightness(1.05);
 }
-
-/* 返回按钮 */
-.back-button button {
-    width: fit-content !important;
-    padding-left: 22px;
-    padding-right: 22px;
-}
 </style>
-""", unsafe_allow_html=True)
-
+""")
 
 if "page" not in st.session_state:
     st.session_state.page = "home"
 
-
 def go_home():
     st.session_state.page = "home"
-
 
 def go_choose():
     st.session_state.page = "choose"
 
-
 def go_pdf():
     st.session_state.page = "pdf"
 
-
 def go_email():
     st.session_state.page = "email"
-
 
 # =========================
 # 首页
 # =========================
 
 if st.session_state.page == "home":
-    st.markdown("""
-    <style>
-    .hero-box {
-        min-height: 620px;
-        text-align: center;
-        padding-top: 120px;
-        position: relative;
-    }
-
-    .hero-badge {
-        display: inline-block;
-        padding: 10px 22px;
-        border-radius: 999px;
-        background: #e8eef3;
-        color: #5b91bd;
-        font-weight: 700;
-        border: 1px solid #cfdbe6;
-    }
-
-    .hero-title {
-        font-size: 72px;
-        font-weight: 900;
-        color: #2b3b4e;
-        margin-top: 36px;
-        margin-bottom: 24px;
-    }
-
-    .hero-subtitle {
-        font-size: 26px;
-        color: #6f879f;
-        line-height: 1.8;
-    }
-
-    .hero-points {
-        margin-top: 40px;
-        color: #6f879f;
-        font-size: 17px;
-    }
-
-    .decor-circle-1 {
-        position: absolute;
-        width: 210px;
-        height: 210px;
-        border-radius: 50%;
-        background: rgba(120,166,195,0.20);
-        left: 0;
-        top: 100px;
-    }
-
-    .decor-circle-2 {
-        position: absolute;
-        width: 150px;
-        height: 150px;
-        border-radius: 50%;
-        background: rgba(158,143,201,0.15);
-        left: 48%;
-        top: 270px;
-    }
-
-    .decor-circle-3 {
-        position: absolute;
-        width: 130px;
-        height: 130px;
-        border-radius: 50%;
-        background: rgba(134,173,142,0.18);
-        right: 80px;
-        top: 290px;
-    }
-    </style>
-    """, unsafe_allow_html=True)
-
-    st.markdown("""
+    html("""
     <div class="topbar">
         <div class="logo-wrap">
             <div class="logo-icon">📄</div>
@@ -433,13 +328,14 @@ if st.session_state.page == "home":
         </div>
         <div style="color:#6f879f;">AI Invoice Agent</div>
     </div>
-    """, unsafe_allow_html=True)
+    """)
 
-    st.markdown("""
+    html("""
     <div class="hero-box">
         <div class="decor-circle-1"></div>
         <div class="decor-circle-2"></div>
         <div class="decor-circle-3"></div>
+        <div class="decor-circle-4"></div>
 
         <div class="hero-badge">● AI 驱动 · 智能报销</div>
         <div class="hero-title">AI发票报销助手</div>
@@ -453,7 +349,7 @@ if st.session_state.page == "home":
             ✅ 自动生成报销表
         </div>
     </div>
-    """, unsafe_allow_html=True)
+    """)
 
     center1, center2, center3 = st.columns([1, 1, 1])
     with center2:
@@ -466,100 +362,98 @@ if st.session_state.page == "home":
     f1, f2, f3, f4 = st.columns(4)
 
     with f1:
-        st.markdown("""
+        html("""
         <div class="feature-card">
             <div class="feature-icon icon-blue">🧠</div>
             <div class="feature-title">AI智能识别</div>
             <div class="feature-desc">自动识别发票内容，提取关键信息。</div>
         </div>
-        """, unsafe_allow_html=True)
+        """)
 
     with f2:
-        st.markdown("""
+        html("""
         <div class="feature-card">
             <div class="feature-icon icon-purple">📄</div>
             <div class="feature-title">PDF发票解析</div>
             <div class="feature-desc">上传PDF发票，精准提取报销数据。</div>
         </div>
-        """, unsafe_allow_html=True)
+        """)
 
     with f3:
-        st.markdown("""
+        html("""
         <div class="feature-card">
             <div class="feature-icon icon-green">📧</div>
             <div class="feature-title">邮箱自动识别</div>
             <div class="feature-desc">授权邮箱，自动获取发票信息。</div>
         </div>
-        """, unsafe_allow_html=True)
+        """)
 
     with f4:
-        st.markdown("""
+        html("""
         <div class="feature-card">
             <div class="feature-icon icon-red">📊</div>
             <div class="feature-title">一键生成报表</div>
             <div class="feature-desc">自动整理并生成报销表格文档。</div>
         </div>
-        """, unsafe_allow_html=True)
+        """)
 
-    st.markdown('<div class="step-title">简单三步，轻松报销</div>', unsafe_allow_html=True)
-    st.markdown('<div class="step-sub">从上传到生成报表，只需几分钟</div>', unsafe_allow_html=True)
+    html('<div class="step-title">简单三步，轻松报销</div>')
+    html('<div class="step-sub">从上传到生成报表，只需几分钟</div>')
 
     s1, s2, s3 = st.columns(3)
 
     with s1:
-        st.markdown("""
+        html("""
         <div style="text-align:center;">
             <h2 style="color:#5c97bf;">01</h2>
             <h3>上传或授权</h3>
             <p style="color:#6f879f;">上传发票PDF或授权邮箱</p>
         </div>
-        """, unsafe_allow_html=True)
+        """)
 
     with s2:
-        st.markdown("""
+        html("""
         <div style="text-align:center;">
             <h2 style="color:#9b8cc8;">02</h2>
             <h3>AI识别</h3>
             <p style="color:#6f879f;">自动提取发票关键信息</p>
         </div>
-        """, unsafe_allow_html=True)
+        """)
 
     with s3:
-        st.markdown("""
+        html("""
         <div style="text-align:center;">
             <h2 style="color:#6fa47f;">03</h2>
             <h3>生成报表</h3>
             <p style="color:#6f879f;">一键导出报销表格文档</p>
         </div>
-        """, unsafe_allow_html=True)
-   
+        """)
+
 # =========================
 # 选择识别方式
 # =========================
 
 elif st.session_state.page == "choose":
-    st.markdown('<div class="back-button">', unsafe_allow_html=True)
     if st.button("‹ 返回首页"):
         go_home()
         st.rerun()
 
-
-    st.markdown("""
+    html("""
     <div class="topbar" style="justify-content:center;">
         <div class="logo-wrap">
             <div class="logo-icon">📄</div>
             <div class="logo-text">AI发票报销助手</div>
         </div>
     </div>
-    """, unsafe_allow_html=True)
+    """)
 
-    st.markdown('<div class="page-title">选择识别方式</div>', unsafe_allow_html=True)
-    st.markdown('<div class="page-sub">选择适合您的方式来识别发票信息</div>', unsafe_allow_html=True)
+    html('<div class="page-title">选择识别方式</div>')
+    html('<div class="page-sub">选择适合您的方式来识别发票信息</div>')
 
     c1, c2 = st.columns(2, gap="large")
 
     with c1:
-        st.markdown("""
+        html("""
         <div class="choose-card">
             <div style="font-size:54px;margin-bottom:18px;">☁️</div>
             <h2 style="color:#2b3b4e;font-size:34px;">上传发票PDF</h2>
@@ -570,16 +464,13 @@ elif st.session_state.page == "choose":
                 <li>一键导出报销表格</li>
             </ul>
         </div>
-        """, unsafe_allow_html=True)
-
-        st.markdown('<div class="choose-btn">', unsafe_allow_html=True)
+        """)
         if st.button("上传发票PDF", use_container_width=True, key="choose_pdf_card"):
             go_pdf()
             st.rerun()
-  
 
     with c2:
-        st.markdown("""
+        html("""
         <div class="choose-card">
             <div style="font-size:54px;margin-bottom:18px;">✉️</div>
             <h2 style="color:#2b3b4e;font-size:34px;">授权邮箱自动识别</h2>
@@ -590,39 +481,31 @@ elif st.session_state.page == "choose":
                 <li>无需手动下载附件</li>
             </ul>
         </div>
-        """, unsafe_allow_html=True)
-
-        st.markdown('<div class="choose-btn">', unsafe_allow_html=True)
+        """)
         if st.button("授权邮箱自动识别", use_container_width=True, key="choose_email_card"):
             go_email()
             st.rerun()
-
-
 
 # =========================
 # PDF 上传识别页
 # =========================
 
 elif st.session_state.page == "pdf":
-    st.markdown('<div class="back-button">', unsafe_allow_html=True)
     if st.button("‹ 返回首页"):
         go_home()
         st.rerun()
 
-
-    st.markdown("""
+    html("""
     <div class="topbar" style="justify-content:center;">
         <div class="logo-wrap">
             <div class="logo-icon">📄</div>
             <div class="logo-text">AI发票报销助手</div>
         </div>
     </div>
-    """, unsafe_allow_html=True)
+    """)
 
-    st.markdown('<div class="page-title">上传发票PDF</div>', unsafe_allow_html=True)
-    st.markdown('<div class="page-sub">拖拽或点击上传PDF格式的发票文件</div>', unsafe_allow_html=True)
-
-   
+    html('<div class="page-title">上传发票PDF</div>')
+    html('<div class="page-sub">拖拽或点击上传PDF格式的发票文件</div>')
 
     uploaded_files = st.file_uploader(
         "拖拽PDF文件到此处，或点击选择文件，支持批量上传",
@@ -658,55 +541,33 @@ elif st.session_state.page == "pdf":
 
         show_results(all_results, total_usage)
 
-
-
-
 # =========================
 # 邮箱自动识别页
 # =========================
 
 elif st.session_state.page == "email":
-    st.markdown('<div class="back-button">', unsafe_allow_html=True)
     if st.button("‹ 返回首页"):
         go_home()
         st.rerun()
-   
 
-    st.markdown("""
+    html("""
     <div class="topbar" style="justify-content:center;">
         <div class="logo-wrap">
             <div class="logo-icon">📄</div>
             <div class="logo-text">AI发票报销助手</div>
         </div>
     </div>
-    """, unsafe_allow_html=True)
+    """)
 
-    st.markdown('<div class="page-title">授权邮箱自动识别</div>', unsafe_allow_html=True)
-    st.markdown('<div class="page-sub">输入邮箱号和授权码，自动识别发票邮件</div>', unsafe_allow_html=True)
+    html('<div class="page-title">授权邮箱自动识别</div>')
+    html('<div class="page-sub">输入邮箱号和授权码，自动识别发票邮件</div>')
 
-  
+    provider = st.selectbox("邮箱类型", ["QQ邮箱", "163邮箱", "126邮箱"])
 
-    provider = st.selectbox(
-        "邮箱类型",
-        ["QQ邮箱", "163邮箱", "126邮箱"]
-    )
+    email_account = st.text_input("邮箱地址", placeholder="请输入您的邮箱地址")
+    auth_code = st.text_input("授权码", type="password", placeholder="请输入邮箱授权码")
 
-    email_account = st.text_input(
-        "邮箱地址",
-        placeholder="请输入您的邮箱地址"
-    )
-
-    auth_code = st.text_input(
-        "授权码",
-        type="password",
-        placeholder="请输入邮箱授权码"
-    )
-
-    days = st.selectbox(
-        "搜索最近多少天的发票",
-        [7, 30, 90],
-        index=1
-    )
+    days = st.selectbox("搜索最近多少天的发票", [7, 30, 90], index=1)
 
     max_files = st.number_input(
         "最多识别PDF附件数量",
@@ -715,12 +576,12 @@ elif st.session_state.page == "email":
         value=20
     )
 
-    st.markdown("""
+    html("""
     <div class="security-box">
         🛡️ <b>安全保障</b><br>
         您的授权信息仅用于识别发票邮件，不会泄露给第三方。
     </div>
-    """, unsafe_allow_html=True)
+    """)
 
     if st.button("授权并开始识别  ⚡", use_container_width=True):
         if not email_account or not auth_code:
@@ -798,9 +659,6 @@ elif st.session_state.page == "email":
         finally:
             if mail:
                 close_email(mail)
-
-  
-
 
 # =========================
 # 管理员入口
