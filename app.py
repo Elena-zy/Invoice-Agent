@@ -471,7 +471,7 @@ elif st.session_state.page == "choose":
     if st.button("‹ 返回首页"):
         go_home()
         st.rerun()
-    st.markdown('</div>', unsafe_allow_html=True)
+
 
     st.markdown("""
     <div class="topbar" style="justify-content:center;">
@@ -505,7 +505,7 @@ elif st.session_state.page == "choose":
         if st.button("上传发票PDF", use_container_width=True, key="choose_pdf_card"):
             go_pdf()
             st.rerun()
-        st.markdown('</div>', unsafe_allow_html=True)
+  
 
     with c2:
         st.markdown("""
@@ -525,7 +525,7 @@ elif st.session_state.page == "choose":
         if st.button("授权邮箱自动识别", use_container_width=True, key="choose_email_card"):
             go_email()
             st.rerun()
-        st.markdown('</div>', unsafe_allow_html=True)
+
 
 
 # =========================
@@ -537,7 +537,7 @@ elif st.session_state.page == "pdf":
     if st.button("‹ 返回首页"):
         go_home()
         st.rerun()
-    st.markdown('</div>', unsafe_allow_html=True)
+
 
     st.markdown("""
     <div class="topbar" style="justify-content:center;">
@@ -551,7 +551,7 @@ elif st.session_state.page == "pdf":
     st.markdown('<div class="page-title">上传发票PDF</div>', unsafe_allow_html=True)
     st.markdown('<div class="page-sub">拖拽或点击上传PDF格式的发票文件</div>', unsafe_allow_html=True)
 
-    st.markdown('<div class="form-card">', unsafe_allow_html=True)
+   
 
     uploaded_files = st.file_uploader(
         "拖拽PDF文件到此处，或点击选择文件，支持批量上传",
@@ -587,7 +587,7 @@ elif st.session_state.page == "pdf":
 
         show_results(all_results, total_usage)
 
-    st.markdown('</div>', unsafe_allow_html=True)
+
 
 
 # =========================
@@ -599,7 +599,7 @@ elif st.session_state.page == "email":
     if st.button("‹ 返回首页"):
         go_home()
         st.rerun()
-    st.markdown('</div>', unsafe_allow_html=True)
+   
 
     st.markdown("""
     <div class="topbar" style="justify-content:center;">
@@ -613,7 +613,7 @@ elif st.session_state.page == "email":
     st.markdown('<div class="page-title">授权邮箱自动识别</div>', unsafe_allow_html=True)
     st.markdown('<div class="page-sub">输入邮箱号和授权码，自动识别发票邮件</div>', unsafe_allow_html=True)
 
-    st.markdown('<div class="form-card">', unsafe_allow_html=True)
+  
 
     provider = st.selectbox(
         "邮箱类型",
@@ -728,7 +728,7 @@ elif st.session_state.page == "email":
             if mail:
                 close_email(mail)
 
-    st.markdown('</div>', unsafe_allow_html=True)
+  
 
 
 # =========================
