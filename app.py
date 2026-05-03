@@ -29,20 +29,323 @@ from utils.test_reporter import (
     TOKEN_LIMIT
 )
 
+
+st.set_page_config(
+    page_title="AI发票报销助手 V5",
+    layout="wide"
+)
+
+
+def extract_answer_unified(result):
+    if not result:
+        return ""
+
+    if isinstance(result, dict) and result.get("error"):
+        return ""
+
+    if isinstance(result, dict) and "answer" in result:
+        return result.get("answer", "")
+
+    if isinstance(result, dict) and "data" in result:
+        data = result.get("data", {})
+        if isinstance(data, dict):
+            outputs = data.get("outputs", {})
+            if isinstance(outputs, dict):
+                if "answer" in outputs:
+                    return outputs["answer"]
+                if "text" in outputs:
+                    return outputs["text"]
+
+    if isinstance(result, dict) and "choices" in result:
+        try:
+            return result["choices"][0]["message"]["content"]
+        except Exception:
+            return ""
+
+    return str(result)
+
+
+def extract_usage(result):
+    if not isinstance(result, dict):
+        return {
+            "prompt_tokens": 0,
+            "completion_tokens": 0,
+            "total_tokens": 0
+        }
+
+    usage = result.get("usage", {})
+
+    return {
+        "prompt_tokens": usage.get("prompt_tokens", 0),
+        "completion_tokens": usage.get("completion_tokens", 0),
+        "total_tokens": usage.get("total_tokens", 0)
+    }
+
+
+def build_error_result(source, file_name, reason):
+    return {
+        "来源": source,
+        "文件名": file_name,
+        "发票号码": "",
+        "城市": "",
+        "类型": "其他",
+        "金额": 0,
+        "日期": "",
+        "发票抬头": "",
+        "销售方": "",
+        "状态": "异常",
+        "异常原因": reason
+    }
+
+
+def recognize_text_to_results(text, source="", file_name="", debug=False):
+    start_time = time.time()
+
+    cleaned_text = clean_pdf_text(text)
+
+    empty_usage = {
+        "prompt_tokens": 0,
+        "completion_tokens": 0,
+        "total_tokens": 0
+    }
+
+    if not cleaned_text:
+        duration = time.time() - start_time
+
+        return [
+            build_error_result(
+                source,
+                file_name,
+                "PDF未读取到文字，可能是扫描版，需要OCR"
+            )
+        ], empty_usage, duration
+
+    result = call_llm(cleaned_text)
+    usage = extract_usage(result)
+
+    if isinstance(result, dict) and result.get("error"):
+        duration = time.time() - start_time
+
+        return [
+            build_error_result(
+                source,
+                file_name,
+                f"AI调用失败：{result.get('message', '未知错误')}"
+            )
+        ], usage, duration
+
+    answer = extract_answer_unified(result)
+    data = parse_json(answer)
+
+    if debug:
+        with st.expander(f"调试信息：{file_name or source}"):
+            st.write("清洗后的PDF文本：")
+            st.text(cleaned_text)
+
+            st.write("AI原始返回：")
+            st.write(result)
+
+            st.write("提取出的 answer：")
+            st.write(answer)
+
+            st.write("解析后的 JSON：")
+            st.write(data)
+
+            st.write("Token 使用：")
+            st.json(usage)
+
+    if not data:
+        duration = time.time() - start_time
+
+        return [
+            build_error_result(
+                source,
+                file_name,
+                "AI未返回有效JSON"
+            )
+        ], usage, duration
+
+    results = []
+
+    for item in data:
+        if isinstance(item, dict):
+            item["source"] = source
+            item["file_name"] = file_name or item.get("file_name", "")
+            results.append(validate_item(item))
+
+    if not results:
+        duration = time.time() - start_time
+
+        return [
+            build_error_result(
+                source,
+                file_name,
+                "AI返回格式异常"
+            )
+        ], usage, duration
+
+    duration = time.time() - start_time
+
+    return results, usage, duration
+
+
+def add_usage(total_usage, usage):
+    total_usage["prompt_tokens"] += usage.get("prompt_tokens", 0)
+    total_usage["completion_tokens"] += usage.get("completion_tokens", 0)
+    total_usage["total_tokens"] += usage.get("total_tokens", 0)
+    return total_usage
+
+
+def log_results(test_round, results, usage, duration):
+    for item in results:
+        is_success = item.get("状态") == "正常"
+
+        write_test_log(
+            test_round=test_round,
+            source=item.get("来源", ""),
+            file_name=item.get("文件名", ""),
+            is_success=is_success,
+            amount=item.get("金额", 0),
+            status=item.get("状态", ""),
+            abnormal_reason=item.get("异常原因", ""),
+            prompt_tokens=usage.get("prompt_tokens", 0),
+            completion_tokens=usage.get("completion_tokens", 0),
+            total_tokens=usage.get("total_tokens", 0),
+            duration_seconds=duration
+        )
+
+
+def show_results(results, total_usage):
+    if not results:
+        st.warning("没有识别到发票信息")
+        return
+
+    st.success(f"识别完成，共识别 {len(results)} 条发票信息")
+
+    total_amount = sum(float(item.get("金额", 0)) for item in results)
+    abnormal_count = len([x for x in results if x.get("状态") == "异常"])
+    success_count = len(results) - abnormal_count
+    success_rate = success_count / len(results) if results else 0
+    avg_token = total_usage.get("total_tokens", 0) / len(results) if results else 0
+
+    col1, col2, col3, col4, col5 = st.columns(5)
+    col1.metric("发票数量", len(results))
+    col2.metric("成功识别数量", success_count)
+    col3.metric("异常数量", abnormal_count)
+    col4.metric("成功率", f"{success_rate:.1%}")
+    col5.metric("总 Token", int(total_usage.get("total_tokens", 0)))
+
+    col6, col7 = st.columns(2)
+    col6.metric("合计金额", f"{total_amount:.2f} 元")
+    col7.metric("平均 Token / 张", f"{avg_token:.0f}")
+
+    with st.expander("Token 消耗明细"):
+        st.write(f"输入 Token：{total_usage.get('prompt_tokens', 0)}")
+        st.write(f"输出 Token：{total_usage.get('completion_tokens', 0)}")
+        st.write(f"总 Token：{total_usage.get('total_tokens', 0)}")
+
+    st.dataframe(results, use_container_width=True)
+
+    excel_path = generate_excel(results)
+
+    with open(excel_path, "rb") as f:
+        st.download_button(
+            label="📥 下载Excel发票表",
+            data=f,
+            file_name="发票报销表.xlsx",
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
+
+
+def show_test_dashboard():
+    logs_df = load_logs()
+
+    if logs_df.empty:
+        st.info("暂无测试记录。开启测试记录后，识别结果会自动写入 test_logs.csv。")
+        return
+
+    total_summary = build_total_summary(logs_df)
+    round_summary = build_round_summary(logs_df)
+
+    st.subheader("📊 测试总体汇总")
+
+    total = total_summary.iloc[0]
+
+    col1, col2, col3, col4, col5 = st.columns(5)
+    col1.metric("发票数量", int(total["发票数量"]))
+    col2.metric("成功识别数量", int(total["成功识别数量"]))
+    col3.metric("异常数量", int(total["异常数量"]))
+    col4.metric("成功率", f"{total['成功率']:.1%}")
+    col5.metric("总 Token", int(total["总Token"]))
+
+    col6, col7, col8, col9 = st.columns(4)
+    col6.metric("合计金额", f"{total['合计金额']:.2f} 元")
+    col7.metric("平均 Token / 张", f"{total['平均Token/张']:.0f}")
+    col8.metric("预计成本", f"{total['预计成本']:.4f} 元")
+    col9.metric("平均识别耗时", f"{total['平均识别耗时']:.2f} 秒")
+
+    st.subheader("💰 Token 预算控制")
+
+    used_tokens = total["总Token"]
+    remaining_tokens = TOKEN_LIMIT - used_tokens
+    usage_rate = used_tokens / TOKEN_LIMIT
+
+    st.write(f"Token 预算上限：{TOKEN_LIMIT}")
+    st.write(f"已使用 Token：{int(used_tokens)}")
+    st.write(f"剩余 Token：{int(remaining_tokens)}")
+    st.progress(min(usage_rate, 1.0))
+
+    if used_tokens >= TOKEN_LIMIT:
+        st.error("Token 已超过 10 万预算，请暂停测试。")
+    elif used_tokens >= TOKEN_LIMIT * 0.8:
+        st.warning("Token 已使用超过 80%，建议控制后续测试规模。")
+    else:
+        st.success("Token 消耗仍在预算范围内。")
+
+    st.subheader("📌 分轮测试指标")
+    st.dataframe(round_summary, use_container_width=True)
+
+    st.subheader("📄 测试明细")
+    st.dataframe(logs_df, use_container_width=True)
+
+    report_path = export_test_report()
+
+    if report_path:
+        with open(report_path, "rb") as f:
+            st.download_button(
+                label="📥 下载产品测试报告 Excel",
+                data=f,
+                file_name="产品测试报告.xlsx",
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            )
+
+
+
 # =========================
-# 产品级官网 + 功能体验页面（已修复 HTML 代码框问题）
+# 产品级官网 + 功能体验页面（修复版）
 # =========================
 
 import textwrap
 
-st.set_page_config(
-    page_title="AI发票报销助手",
-    layout="wide"
-)
 
-def html(code: str):
+def html(content: str):
     """安全渲染 HTML，避免因为缩进被 Streamlit 当成代码块显示。"""
-    st.markdown(textwrap.dedent(code).strip(), unsafe_allow_html=True)
+    st.markdown(textwrap.dedent(content).strip(), unsafe_allow_html=True)
+
+
+# 读取 URL 参数，实现真正页面跳转：?page=home / choose / pdf / email
+if "page" not in st.session_state:
+    st.session_state.page = "home"
+
+try:
+    query_page = st.query_params.get("page", None)
+except Exception:
+    query_params = st.experimental_get_query_params()
+    query_page = query_params.get("page", [None])[0]
+
+if query_page in ["home", "choose", "pdf", "email"]:
+    st.session_state.page = query_page
+
 
 html("""
 <style>
@@ -74,9 +377,9 @@ header[data-testid="stHeader"] {
 }
 
 .logo-icon {
-    width: 44px;
-    height: 44px;
-    border-radius: 14px;
+    width: 48px;
+    height: 48px;
+    border-radius: 16px;
     background: linear-gradient(135deg, #6fa4cc, #9b8cc8);
     color: white;
     display: flex;
@@ -87,26 +390,29 @@ header[data-testid="stHeader"] {
 }
 
 .logo-text {
-    font-size: 22px;
+    font-size: 23px;
     font-weight: 850;
     color: #2b3b4e;
 }
 
-.hero-box {
-    min-height: 620px;
-    text-align: center;
-    padding-top: 110px;
+.hero-section {
+    min-height: 640px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
     position: relative;
     overflow: hidden;
+    text-align: center;
 }
 
 .hero-badge {
-    display: inline-block;
-    padding: 10px 22px;
+    width: fit-content;
+    margin: 0 auto;
+    padding: 9px 22px;
     border-radius: 999px;
     background: #e8eef3;
     color: #5b91bd;
-    font-weight: 700;
+    font-weight: 750;
     border: 1px solid #cfdbe6;
     position: relative;
     z-index: 2;
@@ -114,10 +420,10 @@ header[data-testid="stHeader"] {
 
 .hero-title {
     font-size: 72px;
-    font-weight: 900;
+    font-weight: 950;
     color: #2b3b4e;
-    margin-top: 36px;
-    margin-bottom: 24px;
+    margin-top: 34px;
+    margin-bottom: 22px;
     letter-spacing: -2px;
     position: relative;
     z-index: 2;
@@ -132,44 +438,65 @@ header[data-testid="stHeader"] {
 }
 
 .hero-points {
-    margin-top: 40px;
     color: #6f879f;
+    margin-top: 38px;
     font-size: 17px;
     position: relative;
     z-index: 2;
 }
 
-.decor-circle-1 {
+.primary-cta {
+    display: inline-block;
+    margin-top: 36px;
+    padding: 15px 54px;
+    border-radius: 18px;
+    background: linear-gradient(135deg, #6fa4cc, #9b8cc8);
+    color: white !important;
+    font-weight: 850;
+    text-decoration: none !important;
+    box-shadow: 0 18px 42px rgba(111, 164, 204, 0.34);
+    transition: 0.25s ease;
+    position: relative;
+    z-index: 3;
+}
+
+.primary-cta:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 24px 54px rgba(111, 164, 204, 0.45);
+    filter: brightness(1.05);
+}
+
+.circle-blue {
     position: absolute;
     width: 210px;
     height: 210px;
     border-radius: 50%;
-    background: rgba(120,166,195,0.20);
-    left: 0;
-    top: 100px;
+    background: rgba(120, 166, 195, 0.20);
+    left: 10px;
+    top: 70px;
 }
 
-.decor-circle-2 {
+.circle-purple {
     position: absolute;
     width: 150px;
     height: 150px;
     border-radius: 50%;
-    background: rgba(158,143,201,0.15);
+    background: rgba(158, 143, 201, 0.15);
     left: 48%;
-    top: 270px;
+    top: 250px;
 }
 
-.decor-circle-3 {
+.circle-green {
     position: absolute;
     width: 130px;
     height: 130px;
     border-radius: 50%;
-    background: rgba(134,173,142,0.18);
+    background: rgba(134, 173, 142, 0.18);
     right: 80px;
-    top: 290px;
+    top: 270px;
 }
 
-.decor-circle-4 {
+.circle-pink {
     position: absolute;
     width: 115px;
     height: 115px;
@@ -254,21 +581,74 @@ header[data-testid="stHeader"] {
     margin-bottom: 46px;
 }
 
-.choose-card {
+.choose-card-link {
+    display: block;
     background: white;
     border-radius: 28px;
-    padding: 48px;
+    padding: 54px 48px;
     border: 1px solid #e8e0d8;
     box-shadow: 0 18px 45px rgba(69, 88, 110, 0.08);
     min-height: 380px;
     text-align: center;
     transition: 0.25s ease;
+    text-decoration: none !important;
 }
 
-.choose-card:hover {
+.choose-card-link:hover {
     transform: translateY(-8px);
     box-shadow: 0 32px 80px rgba(69, 88, 110, 0.18);
     border-color: #9b8cc8;
+    background: #ffffff;
+}
+
+.choose-card-icon {
+    width: 76px;
+    height: 76px;
+    border-radius: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 24px auto;
+    font-size: 38px;
+    color: white;
+}
+
+.choose-title {
+    color: #2b3b4e;
+    font-size: 34px;
+    font-weight: 900;
+    margin-bottom: 16px;
+}
+
+.choose-desc {
+    color: #6f879f;
+    font-size: 17px;
+    line-height: 1.8;
+}
+
+.choose-list {
+    color: #6f879f;
+    line-height: 2.1;
+    text-align: left;
+    margin-top: 28px;
+    font-size: 16px;
+}
+
+.back-link {
+    display: inline-block;
+    padding: 10px 20px;
+    border-radius: 999px;
+    color: white !important;
+    background: linear-gradient(135deg, #6fa4cc, #9b8cc8);
+    text-decoration: none !important;
+    font-weight: 800;
+    box-shadow: 0 10px 25px rgba(111, 164, 204, 0.25);
+    transition: 0.25s ease;
+}
+
+.back-link:hover {
+    transform: translateY(-3px);
+    filter: brightness(1.05);
 }
 
 .security-box {
@@ -300,20 +680,6 @@ div.stButton > button:hover {
 </style>
 """)
 
-if "page" not in st.session_state:
-    st.session_state.page = "home"
-
-def go_home():
-    st.session_state.page = "home"
-
-def go_choose():
-    st.session_state.page = "choose"
-
-def go_pdf():
-    st.session_state.page = "pdf"
-
-def go_email():
-    st.session_state.page = "email"
 
 # =========================
 # 首页
@@ -331,11 +697,11 @@ if st.session_state.page == "home":
     """)
 
     html("""
-    <div class="hero-box">
-        <div class="decor-circle-1"></div>
-        <div class="decor-circle-2"></div>
-        <div class="decor-circle-3"></div>
-        <div class="decor-circle-4"></div>
+    <div class="hero-section">
+        <div class="circle-blue"></div>
+        <div class="circle-purple"></div>
+        <div class="circle-green"></div>
+        <div class="circle-pink"></div>
 
         <div class="hero-badge">● AI 驱动 · 智能报销</div>
         <div class="hero-title">AI发票报销助手</div>
@@ -348,16 +714,11 @@ if st.session_state.page == "home":
             ✅ 识别准确率95%+&nbsp;&nbsp;&nbsp;&nbsp;
             ✅ 自动生成报销表
         </div>
+        <a class="primary-cta" href="?page=choose">立即体验 →</a>
     </div>
     """)
 
-    center1, center2, center3 = st.columns([1, 1, 1])
-    with center2:
-        if st.button("立即体验  →", use_container_width=True):
-            go_choose()
-            st.rerun()
-
-    st.markdown("<br><br><br>", unsafe_allow_html=True)
+    st.markdown("<br><br>", unsafe_allow_html=True)
 
     f1, f2, f3, f4 = st.columns(4)
 
@@ -429,14 +790,13 @@ if st.session_state.page == "home":
         </div>
         """)
 
+
 # =========================
 # 选择识别方式
 # =========================
 
 elif st.session_state.page == "choose":
-    if st.button("‹ 返回首页"):
-        go_home()
-        st.rerun()
+    html('<a class="back-link" href="?page=home">‹ 返回首页</a>')
 
     html("""
     <div class="topbar" style="justify-content:center;">
@@ -454,46 +814,39 @@ elif st.session_state.page == "choose":
 
     with c1:
         html("""
-        <div class="choose-card">
-            <div style="font-size:54px;margin-bottom:18px;">☁️</div>
-            <h2 style="color:#2b3b4e;font-size:34px;">上传发票PDF</h2>
-            <p style="color:#6f879f;font-size:17px;">上传PDF格式的发票文件，AI自动识别发票内容</p>
-            <ul style="color:#6f879f;line-height:2.1;text-align:left;margin-top:28px;font-size:16px;">
+        <a class="choose-card-link" href="?page=pdf">
+            <div class="choose-card-icon icon-blue">☁️</div>
+            <div class="choose-title">上传发票PDF</div>
+            <div class="choose-desc">上传PDF格式的发票文件，AI自动识别发票内容</div>
+            <ul class="choose-list">
                 <li>支持批量上传多个PDF</li>
                 <li>精准识别发票关键信息</li>
                 <li>一键导出报销表格</li>
             </ul>
-        </div>
+        </a>
         """)
-        if st.button("上传发票PDF", use_container_width=True, key="choose_pdf_card"):
-            go_pdf()
-            st.rerun()
 
     with c2:
         html("""
-        <div class="choose-card">
-            <div style="font-size:54px;margin-bottom:18px;">✉️</div>
-            <h2 style="color:#2b3b4e;font-size:34px;">授权邮箱自动识别</h2>
-            <p style="color:#6f879f;font-size:17px;">授权邮箱后，自动识别邮件中的发票信息</p>
-            <ul style="color:#6f879f;line-height:2.1;text-align:left;margin-top:28px;font-size:16px;">
+        <a class="choose-card-link" href="?page=email">
+            <div class="choose-card-icon icon-purple">✉️</div>
+            <div class="choose-title">授权邮箱自动识别</div>
+            <div class="choose-desc">授权邮箱后，自动识别邮件中的发票信息</div>
+            <ul class="choose-list">
                 <li>自动扫描邮箱中的发票</li>
                 <li>安全授权，保护隐私</li>
                 <li>无需手动下载附件</li>
             </ul>
-        </div>
+        </a>
         """)
-        if st.button("授权邮箱自动识别", use_container_width=True, key="choose_email_card"):
-            go_email()
-            st.rerun()
+
 
 # =========================
 # PDF 上传识别页
 # =========================
 
 elif st.session_state.page == "pdf":
-    if st.button("‹ 返回首页"):
-        go_home()
-        st.rerun()
+    html('<a class="back-link" href="?page=home">‹ 返回首页</a>')
 
     html("""
     <div class="topbar" style="justify-content:center;">
@@ -541,14 +894,13 @@ elif st.session_state.page == "pdf":
 
         show_results(all_results, total_usage)
 
+
 # =========================
 # 邮箱自动识别页
 # =========================
 
 elif st.session_state.page == "email":
-    if st.button("‹ 返回首页"):
-        go_home()
-        st.rerun()
+    html('<a class="back-link" href="?page=home">‹ 返回首页</a>')
 
     html("""
     <div class="topbar" style="justify-content:center;">
@@ -562,12 +914,27 @@ elif st.session_state.page == "email":
     html('<div class="page-title">授权邮箱自动识别</div>')
     html('<div class="page-sub">输入邮箱号和授权码，自动识别发票邮件</div>')
 
-    provider = st.selectbox("邮箱类型", ["QQ邮箱", "163邮箱", "126邮箱"])
+    provider = st.selectbox(
+        "邮箱类型",
+        ["QQ邮箱", "163邮箱", "126邮箱"]
+    )
 
-    email_account = st.text_input("邮箱地址", placeholder="请输入您的邮箱地址")
-    auth_code = st.text_input("授权码", type="password", placeholder="请输入邮箱授权码")
+    email_account = st.text_input(
+        "邮箱地址",
+        placeholder="请输入您的邮箱地址"
+    )
 
-    days = st.selectbox("搜索最近多少天的发票", [7, 30, 90], index=1)
+    auth_code = st.text_input(
+        "授权码",
+        type="password",
+        placeholder="请输入邮箱授权码"
+    )
+
+    days = st.selectbox(
+        "搜索最近多少天的发票",
+        [7, 30, 90],
+        index=1
+    )
 
     max_files = st.number_input(
         "最多识别PDF附件数量",
@@ -660,6 +1027,7 @@ elif st.session_state.page == "email":
             if mail:
                 close_email(mail)
 
+
 # =========================
 # 管理员入口
 # =========================
@@ -675,3 +1043,4 @@ with st.expander("管理员入口"):
 
     elif admin_password:
         st.error("管理员密码错误")
+
