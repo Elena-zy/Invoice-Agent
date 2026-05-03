@@ -29,36 +29,49 @@ from utils.test_reporter import (
     TOKEN_LIMIT
 )
 
-
 # =========================
 # 产品级官网 + 功能体验页面
 # =========================
 
 st.markdown("""
 <style>
+.stApp {
+    background: #f7f2ec;
+}
+
 .block-container {
     max-width: 1200px;
-    padding-top: 1.5rem;
+    padding-top: 0.5rem;
+    padding-bottom: 5rem;
 }
 
-body {
-    background-color: #f7f2ec;
+/* 隐藏 Streamlit 默认顶部空白 */
+header[data-testid="stHeader"] {
+    background: transparent;
 }
 
-.main-title {
-    text-align: center;
-    font-size: 64px;
-    font-weight: 900;
+/* 顶部 */
+.topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0 20px 0;
+}
+
+.logo-text {
+    font-size: 22px;
+    font-weight: 800;
     color: #2b3b4e;
-    margin-top: 80px;
-    margin-bottom: 20px;
 }
 
-.sub-title {
-    text-align: center;
-    font-size: 24px;
-    color: #6f879f;
-    line-height: 1.8;
+/* 首页首屏 */
+.hero-section {
+    min-height: 610px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
 }
 
 .badge {
@@ -70,26 +83,83 @@ body {
     color: #5b91bd;
     font-weight: 700;
     border: 1px solid #cfdbe6;
+    z-index: 2;
 }
 
-.logo-text {
-    font-size: 22px;
-    font-weight: 800;
+.main-title {
+    text-align: center;
+    font-size: 64px;
+    font-weight: 900;
     color: #2b3b4e;
+    margin-top: 28px;
+    margin-bottom: 22px;
+    letter-spacing: -2px;
+    z-index: 2;
 }
 
-.topbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 40px;
+.sub-title {
+    text-align: center;
+    font-size: 24px;
+    color: #6f879f;
+    line-height: 1.8;
+    z-index: 2;
 }
 
+.footer-points {
+    text-align: center;
+    color: #6f879f;
+    margin-top: 35px;
+    font-size: 16px;
+    z-index: 2;
+}
+
+/* 装饰圆 */
+.circle-blue {
+    position: absolute;
+    width: 190px;
+    height: 190px;
+    border-radius: 50%;
+    background: rgba(120, 166, 195, 0.18);
+    left: 20px;
+    top: 70px;
+}
+
+.circle-purple {
+    position: absolute;
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    background: rgba(158, 143, 201, 0.14);
+    left: 48%;
+    top: 250px;
+}
+
+.circle-green {
+    position: absolute;
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: rgba(134, 173, 142, 0.16);
+    right: 80px;
+    top: 270px;
+}
+
+.circle-pink {
+    position: absolute;
+    width: 105px;
+    height: 105px;
+    border-radius: 50%;
+    background: rgba(196, 138, 145, 0.13);
+    right: 10px;
+    bottom: 35px;
+}
+
+/* 功能卡片 */
 .feature-card {
     background: #ffffff;
     border-radius: 26px;
     padding: 32px;
-    min-height: 180px;
+    min-height: 190px;
     border: 1px solid #eee7dd;
     box-shadow: 0 18px 45px rgba(69, 88, 110, 0.08);
 }
@@ -103,8 +173,23 @@ body {
     justify-content: center;
     font-size: 28px;
     margin-bottom: 22px;
-    background: linear-gradient(135deg, #6fa4cc, #9b8cc8);
     color: white;
+}
+
+.icon-blue {
+    background: linear-gradient(135deg, #5c97bf, #9b8cc8);
+}
+
+.icon-purple {
+    background: linear-gradient(135deg, #9b8cc8, #7c6db5);
+}
+
+.icon-green {
+    background: linear-gradient(135deg, #6fa47f, #8ebc9c);
+}
+
+.icon-red {
+    background: linear-gradient(135deg, #c88a91, #b56f78);
 }
 
 .feature-title {
@@ -135,15 +220,40 @@ body {
     margin-bottom: 46px;
 }
 
-.choose-card {
-    background: white;
-    border-radius: 26px;
-    padding: 42px;
-    border: 1px solid #e8e0d8;
-    box-shadow: 0 18px 45px rgba(69, 88, 110, 0.08);
-    min-height: 320px;
+/* 页面标题 */
+.page-title {
+    text-align: center;
+    font-size: 42px;
+    font-weight: 900;
+    color: #2b3b4e;
+    margin-top: 24px;
 }
 
+.page-sub {
+    text-align: center;
+    color: #6f879f;
+    font-size: 18px;
+    margin-bottom: 46px;
+}
+
+/* 选择页卡片 */
+.choose-card {
+    background: white;
+    border-radius: 28px;
+    padding: 48px;
+    border: 1px solid #e8e0d8;
+    box-shadow: 0 18px 45px rgba(69, 88, 110, 0.08);
+    min-height: 360px;
+    text-align: center;
+    transition: 0.25s ease;
+}
+
+.choose-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 28px 70px rgba(69, 88, 110, 0.14);
+}
+
+/* 表单卡片 */
 .form-card {
     max-width: 720px;
     margin: 0 auto;
@@ -152,21 +262,6 @@ body {
     padding: 42px;
     border: 1px solid #dbe5ee;
     box-shadow: 0 18px 45px rgba(69, 88, 110, 0.08);
-}
-
-.page-title {
-    text-align: center;
-    font-size: 38px;
-    font-weight: 900;
-    color: #2b3b4e;
-    margin-top: 30px;
-}
-
-.page-sub {
-    text-align: center;
-    color: #6f879f;
-    font-size: 18px;
-    margin-bottom: 36px;
 }
 
 .security-box {
@@ -178,11 +273,20 @@ body {
     color: #6f879f;
 }
 
-.footer-points {
-    text-align: center;
-    color: #6f879f;
-    margin-top: 35px;
-    font-size: 16px;
+/* 所有按钮统一美化 */
+div.stButton > button {
+    border-radius: 18px;
+    border: 1px solid #d8e3ec;
+    background: linear-gradient(135deg, #6fa4cc, #9b8cc8);
+    color: white;
+    font-weight: 800;
+    min-height: 48px;
+}
+
+div.stButton > button:hover {
+    border: 1px solid #9b8cc8;
+    color: white;
+    transform: translateY(-2px);
 }
 </style>
 """, unsafe_allow_html=True)
@@ -220,28 +324,30 @@ if st.session_state.page == "home":
     </div>
     """, unsafe_allow_html=True)
 
-    st.markdown('<div class="badge">● AI 驱动 · 智能报销</div>', unsafe_allow_html=True)
-    st.markdown('<div class="main-title">AI发票报销助手</div>', unsafe_allow_html=True)
     st.markdown("""
-    <div class="sub-title">
-        自动识别发票邮件、提取发票信息<br>
-        并生成报销表，让报销从此不再繁琐
+    <div class="hero-section">
+        <div class="circle-blue"></div>
+        <div class="circle-purple"></div>
+        <div class="circle-green"></div>
+        <div class="circle-pink"></div>
+
+        <div class="badge">● AI 驱动 · 智能报销</div>
+        <div class="main-title">AI发票报销助手</div>
+        <div class="sub-title">
+            自动识别发票邮件、提取发票信息<br>
+            并生成报销表，让报销从此不再繁琐
+        </div>
+        <div class="footer-points">
+            ✅ 数据安全加密 &nbsp;&nbsp;&nbsp;&nbsp; ✅ 识别准确率95%+ &nbsp;&nbsp;&nbsp;&nbsp; ✅ 自动生成报销表
+        </div>
     </div>
     """, unsafe_allow_html=True)
-
-    st.markdown("<br>", unsafe_allow_html=True)
 
     center1, center2, center3 = st.columns([1, 1, 1])
     with center2:
         if st.button("立即体验  →", use_container_width=True):
             go_choose()
             st.rerun()
-
-    st.markdown("""
-    <div class="footer-points">
-        ✅ 数据安全加密 &nbsp;&nbsp;&nbsp;&nbsp; ✅ 识别准确率95%+ &nbsp;&nbsp;&nbsp;&nbsp; ✅ 自动生成报销表
-    </div>
-    """, unsafe_allow_html=True)
 
     st.markdown("<br><br><br>", unsafe_allow_html=True)
 
@@ -250,7 +356,7 @@ if st.session_state.page == "home":
     with f1:
         st.markdown("""
         <div class="feature-card">
-            <div class="feature-icon">🧠</div>
+            <div class="feature-icon icon-blue">🧠</div>
             <div class="feature-title">AI智能识别</div>
             <div class="feature-desc">自动识别发票内容，提取关键信息。</div>
         </div>
@@ -259,7 +365,7 @@ if st.session_state.page == "home":
     with f2:
         st.markdown("""
         <div class="feature-card">
-            <div class="feature-icon">📄</div>
+            <div class="feature-icon icon-purple">📄</div>
             <div class="feature-title">PDF发票解析</div>
             <div class="feature-desc">上传PDF发票，精准提取报销数据。</div>
         </div>
@@ -268,7 +374,7 @@ if st.session_state.page == "home":
     with f3:
         st.markdown("""
         <div class="feature-card">
-            <div class="feature-icon">📧</div>
+            <div class="feature-icon icon-green">📧</div>
             <div class="feature-title">邮箱自动识别</div>
             <div class="feature-desc">授权邮箱，自动获取发票信息。</div>
         </div>
@@ -277,7 +383,7 @@ if st.session_state.page == "home":
     with f4:
         st.markdown("""
         <div class="feature-card">
-            <div class="feature-icon">📊</div>
+            <div class="feature-icon icon-red">📊</div>
             <div class="feature-title">一键生成报表</div>
             <div class="feature-desc">自动整理并生成报销表格文档。</div>
         </div>
@@ -291,7 +397,7 @@ if st.session_state.page == "home":
     with s1:
         st.markdown("""
         <div style="text-align:center;">
-            <h2>01</h2>
+            <h2 style="color:#5c97bf;">01</h2>
             <h3>上传或授权</h3>
             <p style="color:#6f879f;">上传发票PDF或授权邮箱</p>
         </div>
@@ -300,7 +406,7 @@ if st.session_state.page == "home":
     with s2:
         st.markdown("""
         <div style="text-align:center;">
-            <h2>02</h2>
+            <h2 style="color:#9b8cc8;">02</h2>
             <h3>AI识别</h3>
             <p style="color:#6f879f;">自动提取发票关键信息</p>
         </div>
@@ -309,7 +415,7 @@ if st.session_state.page == "home":
     with s3:
         st.markdown("""
         <div style="text-align:center;">
-            <h2>03</h2>
+            <h2 style="color:#6fa47f;">03</h2>
             <h3>生成报表</h3>
             <p style="color:#6f879f;">一键导出报销表格文档</p>
         </div>
@@ -336,7 +442,7 @@ elif st.session_state.page == "choose":
             <div style="text-align:center;font-size:48px;">☁️</div>
             <h2 style="text-align:center;color:#2b3b4e;">上传发票PDF</h2>
             <p style="text-align:center;color:#6f879f;">上传PDF格式的发票文件，AI自动识别发票内容</p>
-            <ul style="color:#6f879f;line-height:2;">
+            <ul style="color:#6f879f;line-height:2;text-align:left;">
                 <li>支持批量上传多个PDF</li>
                 <li>精准识别发票关键信息</li>
                 <li>一键导出报销表格</li>
@@ -344,7 +450,7 @@ elif st.session_state.page == "choose":
         </div>
         """, unsafe_allow_html=True)
 
-        if st.button("选择 PDF 上传", use_container_width=True):
+        if st.button("上传发票PDF", use_container_width=True):
             go_pdf()
             st.rerun()
 
@@ -354,7 +460,7 @@ elif st.session_state.page == "choose":
             <div style="text-align:center;font-size:48px;">✉️</div>
             <h2 style="text-align:center;color:#2b3b4e;">授权邮箱自动识别</h2>
             <p style="text-align:center;color:#6f879f;">授权邮箱后，自动识别邮件中的发票信息</p>
-            <ul style="color:#6f879f;line-height:2;">
+            <ul style="color:#6f879f;line-height:2;text-align:left;">
                 <li>自动扫描邮箱中的发票</li>
                 <li>安全授权，保护隐私</li>
                 <li>无需手动下载附件</li>
@@ -362,7 +468,7 @@ elif st.session_state.page == "choose":
         </div>
         """, unsafe_allow_html=True)
 
-        if st.button("选择邮箱识别", use_container_width=True):
+        if st.button("授权邮箱自动识别", use_container_width=True):
             go_email()
             st.rerun()
 
