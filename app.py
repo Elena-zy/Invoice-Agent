@@ -322,29 +322,15 @@ def show_test_dashboard():
 
 
 # =========================
-# 产品级官网 + 功能体验页面（修复版）
+# 产品级官网 + 功能体验页面（视觉版修复）
 # =========================
 
 import textwrap
 
 
 def html(content: str):
-    """安全渲染 HTML，避免因为缩进被 Streamlit 当成代码块显示。"""
+    """稳定渲染 HTML，避免缩进导致 HTML 被 Streamlit 当成代码块显示。"""
     st.markdown(textwrap.dedent(content).strip(), unsafe_allow_html=True)
-
-
-# 读取 URL 参数，实现真正页面跳转：?page=home / choose / pdf / email
-if "page" not in st.session_state:
-    st.session_state.page = "home"
-
-try:
-    query_page = st.query_params.get("page", None)
-except Exception:
-    query_params = st.experimental_get_query_params()
-    query_page = query_params.get("page", [None])[0]
-
-if query_page in ["home", "choose", "pdf", "email"]:
-    st.session_state.page = query_page
 
 
 html("""
@@ -363,6 +349,7 @@ header[data-testid="stHeader"] {
     background: transparent;
 }
 
+/* 顶部导航 */
 .topbar {
     display: flex;
     justify-content: space-between;
@@ -377,9 +364,9 @@ header[data-testid="stHeader"] {
 }
 
 .logo-icon {
-    width: 48px;
-    height: 48px;
-    border-radius: 16px;
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
     background: linear-gradient(135deg, #6fa4cc, #9b8cc8);
     color: white;
     display: flex;
@@ -390,13 +377,14 @@ header[data-testid="stHeader"] {
 }
 
 .logo-text {
-    font-size: 23px;
+    font-size: 22px;
     font-weight: 850;
     color: #2b3b4e;
 }
 
+/* 首页 */
 .hero-section {
-    min-height: 640px;
+    min-height: 620px;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -445,27 +433,7 @@ header[data-testid="stHeader"] {
     z-index: 2;
 }
 
-.primary-cta {
-    display: inline-block;
-    margin-top: 36px;
-    padding: 15px 54px;
-    border-radius: 18px;
-    background: linear-gradient(135deg, #6fa4cc, #9b8cc8);
-    color: white !important;
-    font-weight: 850;
-    text-decoration: none !important;
-    box-shadow: 0 18px 42px rgba(111, 164, 204, 0.34);
-    transition: 0.25s ease;
-    position: relative;
-    z-index: 3;
-}
-
-.primary-cta:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 24px 54px rgba(111, 164, 204, 0.45);
-    filter: brightness(1.05);
-}
-
+/* 装饰圆 */
 .circle-blue {
     position: absolute;
     width: 210px;
@@ -506,6 +474,7 @@ header[data-testid="stHeader"] {
     bottom: 30px;
 }
 
+/* 功能卡片 */
 .feature-card {
     background: #ffffff;
     border-radius: 26px;
@@ -566,6 +535,7 @@ header[data-testid="stHeader"] {
     margin-bottom: 46px;
 }
 
+/* 页面标题 */
 .page-title {
     text-align: center;
     font-size: 42px;
@@ -581,76 +551,32 @@ header[data-testid="stHeader"] {
     margin-bottom: 46px;
 }
 
-.choose-card-link {
-    display: block;
+/* 选择方式页 */
+.choose-card {
     background: white;
     border-radius: 28px;
-    padding: 54px 48px;
+    padding: 48px;
     border: 1px solid #e8e0d8;
     box-shadow: 0 18px 45px rgba(69, 88, 110, 0.08);
     min-height: 380px;
     text-align: center;
     transition: 0.25s ease;
-    text-decoration: none !important;
 }
 
-.choose-card-link:hover {
+.choose-card:hover {
     transform: translateY(-8px);
     box-shadow: 0 32px 80px rgba(69, 88, 110, 0.18);
     border-color: #9b8cc8;
-    background: #ffffff;
 }
 
-.choose-card-icon {
-    width: 76px;
-    height: 76px;
-    border-radius: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 24px auto;
-    font-size: 38px;
-    color: white;
+/* 选择卡片按钮：视觉上与卡片融为一体 */
+.choose-button-wrap button {
+    margin-top: -62px;
+    border-radius: 0 0 28px 28px !important;
+    min-height: 58px !important;
 }
 
-.choose-title {
-    color: #2b3b4e;
-    font-size: 34px;
-    font-weight: 900;
-    margin-bottom: 16px;
-}
-
-.choose-desc {
-    color: #6f879f;
-    font-size: 17px;
-    line-height: 1.8;
-}
-
-.choose-list {
-    color: #6f879f;
-    line-height: 2.1;
-    text-align: left;
-    margin-top: 28px;
-    font-size: 16px;
-}
-
-.back-link {
-    display: inline-block;
-    padding: 10px 20px;
-    border-radius: 999px;
-    color: white !important;
-    background: linear-gradient(135deg, #6fa4cc, #9b8cc8);
-    text-decoration: none !important;
-    font-weight: 800;
-    box-shadow: 0 10px 25px rgba(111, 164, 204, 0.25);
-    transition: 0.25s ease;
-}
-
-.back-link:hover {
-    transform: translateY(-3px);
-    filter: brightness(1.05);
-}
-
+/* 安全提示 */
 .security-box {
     background: #f7f4fa;
     border: 1px solid #ebe5f3;
@@ -660,6 +586,7 @@ header[data-testid="stHeader"] {
     color: #6f879f;
 }
 
+/* 普通按钮 */
 div.stButton > button {
     border-radius: 18px;
     border: 1px solid #d8e3ec;
@@ -677,8 +604,41 @@ div.stButton > button:hover {
     box-shadow: 0 14px 32px rgba(111, 164, 204, 0.35);
     filter: brightness(1.05);
 }
+
+/* 返回按钮 */
+.back-button button {
+    width: fit-content !important;
+    padding-left: 22px;
+    padding-right: 22px;
+}
+
+/* 输入控件宽度更舒服 */
+.stTextInput, .stSelectbox, .stNumberInput, .stFileUploader {
+    max-width: 900px;
+    margin-left: auto;
+    margin-right: auto;
+}
 </style>
 """)
+
+if "page" not in st.session_state:
+    st.session_state.page = "home"
+
+
+def go_home():
+    st.session_state.page = "home"
+
+
+def go_choose():
+    st.session_state.page = "choose"
+
+
+def go_pdf():
+    st.session_state.page = "pdf"
+
+
+def go_email():
+    st.session_state.page = "email"
 
 
 # =========================
@@ -714,11 +674,16 @@ if st.session_state.page == "home":
             ✅ 识别准确率95%+&nbsp;&nbsp;&nbsp;&nbsp;
             ✅ 自动生成报销表
         </div>
-        <a class="primary-cta" href="?page=choose">立即体验 →</a>
     </div>
     """)
 
-    st.markdown("<br><br>", unsafe_allow_html=True)
+    center1, center2, center3 = st.columns([1, 1, 1])
+    with center2:
+        if st.button("立即体验  →", use_container_width=True):
+            go_choose()
+            st.rerun()
+
+    st.markdown("<br><br><br>", unsafe_allow_html=True)
 
     f1, f2, f3, f4 = st.columns(4)
 
@@ -796,7 +761,11 @@ if st.session_state.page == "home":
 # =========================
 
 elif st.session_state.page == "choose":
-    html('<a class="back-link" href="?page=home">‹ 返回首页</a>')
+    html('<div class="back-button">')
+    if st.button("‹ 返回首页", key="back_from_choose"):
+        go_home()
+        st.rerun()
+    html('</div>')
 
     html("""
     <div class="topbar" style="justify-content:center;">
@@ -814,31 +783,41 @@ elif st.session_state.page == "choose":
 
     with c1:
         html("""
-        <a class="choose-card-link" href="?page=pdf">
-            <div class="choose-card-icon icon-blue">☁️</div>
-            <div class="choose-title">上传发票PDF</div>
-            <div class="choose-desc">上传PDF格式的发票文件，AI自动识别发票内容</div>
-            <ul class="choose-list">
+        <div class="choose-card">
+            <div style="font-size:54px;margin-bottom:18px;">☁️</div>
+            <h2 style="color:#2b3b4e;font-size:34px;">上传发票PDF</h2>
+            <p style="color:#6f879f;font-size:17px;">上传PDF格式的发票文件，AI自动识别发票内容</p>
+            <ul style="color:#6f879f;line-height:2.1;text-align:left;margin-top:28px;font-size:16px;">
                 <li>支持批量上传多个PDF</li>
                 <li>精准识别发票关键信息</li>
                 <li>一键导出报销表格</li>
             </ul>
-        </a>
+        </div>
         """)
+        html('<div class="choose-button-wrap">')
+        if st.button("上传发票PDF", use_container_width=True, key="choose_pdf_card"):
+            go_pdf()
+            st.rerun()
+        html('</div>')
 
     with c2:
         html("""
-        <a class="choose-card-link" href="?page=email">
-            <div class="choose-card-icon icon-purple">✉️</div>
-            <div class="choose-title">授权邮箱自动识别</div>
-            <div class="choose-desc">授权邮箱后，自动识别邮件中的发票信息</div>
-            <ul class="choose-list">
+        <div class="choose-card">
+            <div style="font-size:54px;margin-bottom:18px;">✉️</div>
+            <h2 style="color:#2b3b4e;font-size:34px;">授权邮箱自动识别</h2>
+            <p style="color:#6f879f;font-size:17px;">授权邮箱后，自动识别邮件中的发票信息</p>
+            <ul style="color:#6f879f;line-height:2.1;text-align:left;margin-top:28px;font-size:16px;">
                 <li>自动扫描邮箱中的发票</li>
                 <li>安全授权，保护隐私</li>
                 <li>无需手动下载附件</li>
             </ul>
-        </a>
+        </div>
         """)
+        html('<div class="choose-button-wrap">')
+        if st.button("授权邮箱自动识别", use_container_width=True, key="choose_email_card"):
+            go_email()
+            st.rerun()
+        html('</div>')
 
 
 # =========================
@@ -846,7 +825,11 @@ elif st.session_state.page == "choose":
 # =========================
 
 elif st.session_state.page == "pdf":
-    html('<a class="back-link" href="?page=home">‹ 返回首页</a>')
+    html('<div class="back-button">')
+    if st.button("‹ 返回首页", key="back_from_pdf"):
+        go_home()
+        st.rerun()
+    html('</div>')
 
     html("""
     <div class="topbar" style="justify-content:center;">
@@ -900,7 +883,11 @@ elif st.session_state.page == "pdf":
 # =========================
 
 elif st.session_state.page == "email":
-    html('<a class="back-link" href="?page=home">‹ 返回首页</a>')
+    html('<div class="back-button">')
+    if st.button("‹ 返回首页", key="back_from_email"):
+        go_home()
+        st.rerun()
+    html('</div>')
 
     html("""
     <div class="topbar" style="justify-content:center;">
@@ -1043,4 +1030,3 @@ with st.expander("管理员入口"):
 
     elif admin_password:
         st.error("管理员密码错误")
-
