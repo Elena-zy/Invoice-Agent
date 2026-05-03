@@ -355,6 +355,77 @@ def go_email():
 
 if st.session_state.page == "home":
     st.markdown("""
+    <style>
+    .hero-box {
+        min-height: 620px;
+        text-align: center;
+        padding-top: 120px;
+        position: relative;
+    }
+
+    .hero-badge {
+        display: inline-block;
+        padding: 10px 22px;
+        border-radius: 999px;
+        background: #e8eef3;
+        color: #5b91bd;
+        font-weight: 700;
+        border: 1px solid #cfdbe6;
+    }
+
+    .hero-title {
+        font-size: 72px;
+        font-weight: 900;
+        color: #2b3b4e;
+        margin-top: 36px;
+        margin-bottom: 24px;
+    }
+
+    .hero-subtitle {
+        font-size: 26px;
+        color: #6f879f;
+        line-height: 1.8;
+    }
+
+    .hero-points {
+        margin-top: 40px;
+        color: #6f879f;
+        font-size: 17px;
+    }
+
+    .decor-circle-1 {
+        position: absolute;
+        width: 210px;
+        height: 210px;
+        border-radius: 50%;
+        background: rgba(120,166,195,0.20);
+        left: 0;
+        top: 100px;
+    }
+
+    .decor-circle-2 {
+        position: absolute;
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        background: rgba(158,143,201,0.15);
+        left: 48%;
+        top: 270px;
+    }
+
+    .decor-circle-3 {
+        position: absolute;
+        width: 130px;
+        height: 130px;
+        border-radius: 50%;
+        background: rgba(134,173,142,0.18);
+        right: 80px;
+        top: 290px;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+    st.markdown("""
     <div class="topbar">
         <div class="logo-wrap">
             <div class="logo-icon">📄</div>
@@ -365,21 +436,20 @@ if st.session_state.page == "home":
     """, unsafe_allow_html=True)
 
     st.markdown("""
-    <div class="hero-section">
-        <div class="circle-blue"></div>
-        <div class="circle-purple"></div>
-        <div class="circle-green"></div>
-        <div class="circle-pink"></div>
+    <div class="hero-box">
+        <div class="decor-circle-1"></div>
+        <div class="decor-circle-2"></div>
+        <div class="decor-circle-3"></div>
 
-        <div class="badge">● AI 驱动 · 智能报销</div>
-        <div class="main-title">AI发票报销助手</div>
-        <div class="sub-title">
+        <div class="hero-badge">● AI 驱动 · 智能报销</div>
+        <div class="hero-title">AI发票报销助手</div>
+        <div class="hero-subtitle">
             自动识别发票邮件、提取发票信息<br>
             并生成报销表，让报销从此不再繁琐
         </div>
-        <div class="footer-points">
-            ✅ 数据安全加密 &nbsp;&nbsp;&nbsp;&nbsp;
-            ✅ 识别准确率95%+ &nbsp;&nbsp;&nbsp;&nbsp;
+        <div class="hero-points">
+            ✅ 数据安全加密&nbsp;&nbsp;&nbsp;&nbsp;
+            ✅ 识别准确率95%+&nbsp;&nbsp;&nbsp;&nbsp;
             ✅ 自动生成报销表
         </div>
     </div>
