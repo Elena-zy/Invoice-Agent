@@ -378,7 +378,9 @@ if st.session_state.page == "home":
             并生成报销表，让报销从此不再繁琐
         </div>
         <div class="footer-points">
-            ✅ 数据安全加密 &nbsp;&nbsp;&nbsp;&nbsp; ✅ 识别准确率95%+ &nbsp;&nbsp;&nbsp;&nbsp; ✅ 自动生成报销表
+            ✅ 数据安全加密 &nbsp;&nbsp;&nbsp;&nbsp;
+            ✅ 识别准确率95%+ &nbsp;&nbsp;&nbsp;&nbsp;
+            ✅ 自动生成报销表
         </div>
     </div>
     """, unsafe_allow_html=True)
@@ -460,8 +462,7 @@ if st.session_state.page == "home":
             <p style="color:#6f879f;">一键导出报销表格文档</p>
         </div>
         """, unsafe_allow_html=True)
-
-
+   
 # =========================
 # 选择识别方式
 # =========================
