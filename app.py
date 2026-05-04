@@ -1,5 +1,6 @@
 import imaplib
 import time
+import textwrap
 import streamlit as st
 
 from services.pdf_service import (
@@ -34,7 +35,8 @@ st.set_page_config(
     page_title="AI发票报销助手 V5",
     layout="wide"
 )
-
+def html(content):
+    st.markdown(textwrap.dedent(content), unsafe_allow_html=True)
 
 def extract_answer_unified(result):
     if not result:
@@ -656,26 +658,22 @@ if st.session_state.page == "home":
     </div>
     """)
 
-    html("""
-    <div class="hero-section">
-        <div class="circle-blue"></div>
-        <div class="circle-purple"></div>
-        <div class="circle-green"></div>
-        <div class="circle-pink"></div>
-
-        <div class="hero-badge">● AI 驱动 · 智能报销</div>
-        <div class="hero-title">AI发票报销助手</div>
-        <div class="hero-subtitle">
-            自动识别发票邮件、提取发票信息<br>
-            并生成报销表，让报销从此不再繁琐
-        </div>
-        <div class="hero-points">
-            ✅ 数据安全加密&nbsp;&nbsp;&nbsp;&nbsp;
-            ✅ 识别准确率95%+&nbsp;&nbsp;&nbsp;&nbsp;
-            ✅ 自动生成报销表
-        </div>
+    st.markdown(
+    """
+    <div class="hero-badge">● AI 驱动 · 智能报销</div>
+    <div class="hero-title">AI发票报销助手</div>
+    <div class="hero-subtitle">
+    自动识别发票邮件、提取发票信息<br>
+    并生成报销表，让报销从此不再繁琐
     </div>
-    """)
+    <div class="hero-points">
+    ✅ 数据安全加密&nbsp;&nbsp;&nbsp;&nbsp;
+    ✅ 识别准确率95%+&nbsp;&nbsp;&nbsp;&nbsp;
+    ✅ 自动生成报销表
+    </div>
+        """,
+        unsafe_allow_html=True
+    )
 
     center1, center2, center3 = st.columns([1, 1, 1])
     with center2:
