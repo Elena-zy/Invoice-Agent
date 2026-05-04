@@ -660,19 +660,26 @@ if st.session_state.page == "home":
 
     st.markdown(
     """
+    <div style="text-align:center; max-width:900px; margin:80px auto;">
+
     <div class="hero-badge">● AI 驱动 · 智能报销</div>
+
     <div class="hero-title">AI发票报销助手</div>
+
     <div class="hero-subtitle">
     自动识别发票邮件、提取发票信息<br>
     并生成报销表，让报销从此不再繁琐
     </div>
+
     <div class="hero-points">
     ✅ 数据安全加密&nbsp;&nbsp;&nbsp;&nbsp;
     ✅ 识别准确率95%+&nbsp;&nbsp;&nbsp;&nbsp;
     ✅ 自动生成报销表
     </div>
-        """,
-        unsafe_allow_html=True
+
+    </div>
+    """,
+    unsafe_allow_html=True
     )
 
     center1, center2, center3 = st.columns([1, 1, 1])
